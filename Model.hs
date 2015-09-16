@@ -1,11 +1,12 @@
 module Model where
 
 import ClassyPrelude.Yesod
-import Database.Persist.Quasi
+import Data.UUID
+import System.Random
 
--- You can define all of your database entities in the entities file.
--- You can find more information on persistent and how to declare entities
--- at:
--- http://www.yesodweb.com/book/persistent/
-share [mkPersist sqlSettings, mkMigrate "migrateAll"]
-    $(persistFileWith lowerCaseSettings "config/models")
+newtype Token = Token { tokenUUID :: UUID }
+    deriving (Eq, Random, Read, Show)
+
+instance PathPiece Token where
+    toPathPiece = toText . tokenUUID
+    fromPathPiece = fmap Token . fromText

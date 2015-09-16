@@ -16,6 +16,7 @@ data App = App
     , appStatic      :: Static -- ^ Settings for static file serving.
     , appHttpManager :: Manager
     , appLogger      :: Logger
+    , appRandomGem   :: StdGen
     }
 
 instance HasHttpManager App where

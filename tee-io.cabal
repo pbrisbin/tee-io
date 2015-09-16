@@ -22,6 +22,8 @@ library
                      Settings.StaticFiles
                      Handler.Common
                      Handler.Home
+                     Handler.Commands
+                     Handler.Command
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -82,6 +84,8 @@ library
                  , containers
                  , vector
                  , time
+                 , uuid
+                 , random
 
 executable         tee-io
     if flag(library-only)

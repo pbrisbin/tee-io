@@ -4,3 +4,5 @@
 /robots.txt RobotsR GET
 
 / HomeR GET
+/commands CommandsR POST
+/commands/#Token CommandR GET
