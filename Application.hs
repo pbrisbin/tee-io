@@ -32,6 +32,8 @@ import Handler.Home
 import Handler.Commands
 import Handler.Command
 
+import qualified Database.Redis as Redis
+
 -- This line actually creates our YesodDispatch instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
 -- comments there for more details.
@@ -51,6 +53,7 @@ makeFoundation appSettings = do
         (if appMutableStatic appSettings then staticDevel else static)
         (appStaticDir appSettings)
     appRandomGem <- newStdGen
+    appRedis <- Redis.connect Redis.defaultConnectInfo
 
     -- Return the foundation
     return $ App {..}

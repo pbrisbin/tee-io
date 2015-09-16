@@ -5,6 +5,7 @@ import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
+import qualified Database.Redis as Redis
 import qualified Yesod.Core.Unsafe as Unsafe
 
 -- | The foundation datatype for your application. This can be a good place to
@@ -17,6 +18,7 @@ data App = App
     , appHttpManager :: Manager
     , appLogger      :: Logger
     , appRandomGem   :: StdGen
+    , appRedis       :: Redis.Connection
     }
 
 instance HasHttpManager App where
@@ -96,6 +98,11 @@ instance Yesod App where
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
+
+runRedis :: Redis.Redis a -> Handler a
+runRedis a = do
+    conn <- appRedis <$> getYesod
+    liftIO $ Redis.runRedis conn a
 
 unsafeHandler :: App -> Handler a -> IO a
 unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger

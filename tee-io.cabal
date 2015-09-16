@@ -86,6 +86,7 @@ library
                  , time
                  , uuid
                  , random
+                 , hedis
 
 executable         tee-io
     if flag(library-only)
