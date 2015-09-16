@@ -1,0 +1,20 @@
+Default: &defaults
+  database: tee-io.sqlite3
+  poolsize: 10
+
+Development:
+  <<: *defaults
+
+Testing:
+  database: tee-io_test.sqlite3
+  <<: *defaults
+
+Staging:
+  database: tee-io_staging.sqlite3
+  poolsize: 100
+  <<: *defaults
+
+Production:
+  database: tee-io_production.sqlite3
+  poolsize: 100
+  <<: *defaults
