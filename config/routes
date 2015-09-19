@@ -5,5 +5,5 @@
 
 / HomeR GET
 /commands CommandsR POST
-/commands/#Token CommandR GET
+/commands/#Token CommandR GET PUT
 /commands/#Token/output OutputR GET POST

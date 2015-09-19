@@ -4,6 +4,7 @@ module Storage
     , runStorage
     , throwError
     , createCommand
+    , updateCommand
     , createOutput
     , getCommandData
     , getOutputs
@@ -58,6 +59,16 @@ createCommand command = do
     void $ runRedis $ Redis.set (toKey token) $ toValue commandData
 
     return token
+
+-- | Update a given command
+updateCommand :: Token -> Command -> Storage ()
+updateCommand token command = do
+    cd <- getCommandData token
+
+    lift $ $(logDebug) "updating command data"
+    lift $ $(logDebug) $ "token " <> pack (show token)
+
+    void $ runRedis $ Redis.set (toKey token) $ toValue cd { cdCommand = command }
 
 -- | Create output for a command
 createOutput :: OutputToken -> Output -> Storage ()

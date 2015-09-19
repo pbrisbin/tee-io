@@ -13,3 +13,13 @@ getCommandR token = do
         Right outputs -> defaultLayout $ do
             setTitle "tee.io - Command"
             $(widgetFile "command")
+
+putCommandR :: Token -> Handler ()
+putCommandR token = do
+    command <- requireJsonBody
+
+    result <- runStorage $ updateCommand token command
+
+    case result of
+        Left err -> error $ show err -- TODO
+        Right _ -> return ()

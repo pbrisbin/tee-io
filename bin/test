@@ -26,4 +26,4 @@ curl_json "/commands/$token/output" '{"content":"line 8"}'; sleep 2
 curl_json "/commands/$token/output" '{"content":"line 9"}'; sleep 1
 curl_json "/commands/$token/output" '{"content":"line 10"}'; sleep 1
 
-# #curl_json "/commands/$token" '{"running":false}' PUT
+curl_json "/commands/$token" '{"running":false}' PUT
