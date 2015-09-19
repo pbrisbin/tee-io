@@ -1,4 +1,4 @@
 <pre>
-  <code>
+  <code #output data-stream-start=#{length outputs}>
     $forall output <- outputs
-      #{outputContent output}
+      #{outputContent output <> "\n"}

@@ -25,6 +25,7 @@ library
                      Handler.Home
                      Handler.Commands
                      Handler.Command
+                     Handler.Output
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -89,6 +90,7 @@ library
                  , random
                  , hedis
                  , transformers
+                 , yesod-websockets
 
 executable         tee-io
     if flag(library-only)

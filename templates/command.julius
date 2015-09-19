@@ -1,0 +1,32 @@
+function Output($elem) {
+  this.$elem = $elem
+}
+
+Output.prototype.append = function(text) {
+  var currentText = this.$elem.text()
+    , newText = currentText + text + "\n";
+
+  this.$elem.text(newText);
+};
+
+$(function() {
+  var $elem = $("#output")
+    , output = new Output($elem)
+    , start = $elem.data("stream-start")
+    , wsUrl = "ws://" + location.host + location.pathname + "/output?start=" + start
+    , ws = new WebSocket(wsUrl);
+
+  ws.onopen = function() {
+    console.log("websocket connection open");
+  };
+
+  ws.onclose = function() {
+    console.log("websocket connection closed");
+  };
+
+  ws.onmessage = function(data) {
+    console.log("message", data.data);
+    output.append(data.data);
+    ws.send("acknowledged");
+  };
+});

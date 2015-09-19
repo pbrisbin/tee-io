@@ -31,6 +31,7 @@ import Handler.Common
 import Handler.Home
 import Handler.Commands
 import Handler.Command
+import Handler.Output
 
 import qualified Database.Redis as Redis
 
