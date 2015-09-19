@@ -11,4 +11,5 @@ $newline never
 
     ^{pageHead pc}
   <body>
+    <div .container>
       ^{pageBody pc}
