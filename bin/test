@@ -1,6 +1,5 @@
 #!/bin/sh
-set -e
-set -o pipefail
+set -e -o pipefail
 
 curl_json() {
   local path=$1 data=${2:-'{}'} method=${3:-POST}
@@ -11,19 +10,16 @@ curl_json() {
 }
 
 token=$(curl_json "/commands" '{}' | jq --raw-output '.token')
+printf "http://localhost:3000/commands/%s\n" "$token"; sleep 3
 
-printf "http://localhost:3000/commands/%s\n" "$token"
-sleep 5
-
-curl_json "/commands/$token/output" '{"content":"line 1"}'
-curl_json "/commands/$token/output" '{"content":"line 2"}'
+curl_json "/commands/$token/output" '{"content":"line 1"}'; sleep 1
+curl_json "/commands/$token/output" '{"content":"line 2"}'; sleep 2
 curl_json "/commands/$token/output" '{"content":"line 3"}'; sleep 1
-curl_json "/commands/$token/output" '{"content":"line 4"}'; sleep 3
-curl_json "/commands/$token/output" '{"content":"line 5"}'; sleep 1
-curl_json "/commands/$token/output" '{"content":"line 6"}'; sleep 5
-curl_json "/commands/$token/output" '{"content":"line 7"}'; sleep 1
-curl_json "/commands/$token/output" '{"content":"line 8"}'; sleep 2
+curl_json "/commands/$token/output" '{"content":"line 4"}'; sleep 2
+curl_json "/commands/$token/output" '{"content":"line 5"}'; sleep 2
+curl_json "/commands/$token/output" '{"content":"line 6"}'; sleep 1
+curl_json "/commands/$token/output" '{"content":"line 7"}'; sleep 2
+curl_json "/commands/$token/output" '{"content":"line 8"}'; sleep 1
 curl_json "/commands/$token/output" '{"content":"line 9"}'; sleep 1
-curl_json "/commands/$token/output" '{"content":"line 10"}'; sleep 1
-
+curl_json "/commands/$token/output" '{"content":"line 10"}'
 curl_json "/commands/$token" '{"running":false}' PUT

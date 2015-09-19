@@ -1,32 +1,29 @@
-function Output($elem) {
-  this.$elem = $elem
+function Output(elem) {
+  this.elem = elem;
+  this.streamUrl = elem.
+    getAttribute("data-stream-url").
+    replace(/https?:/, "ws:");
 }
 
 Output.prototype.append = function(text) {
-  var currentText = this.$elem.text()
+  var currentText = this.elem.textContent
     , newText = currentText + text + "\n";
 
-  this.$elem.text(newText);
+  this.elem.textContent = newText;
 };
 
-$(function() {
-  var $elem = $("#output")
-    , output = new Output($elem)
-    , start = $elem.data("stream-start")
-    , wsUrl = "ws://" + location.host + location.pathname + "/output?start=" + start
-    , ws = new WebSocket(wsUrl);
+Output.prototype.connect = function() {
+  var self = this
+    , socket = new WebSocket(this.streamUrl);
 
-  ws.onopen = function() {
-    console.log("websocket connection open");
+  socket.onmessage = function(data) {
+    self.append(data.data);
+    socket.send("acknowledged");
   };
+}
 
-  ws.onclose = function() {
-    console.log("websocket connection closed");
-  };
+document.addEventListener("DOMContentLoaded", function() {
+  var elem = document.getElementById("output")
 
-  ws.onmessage = function(data) {
-    console.log("message", data.data);
-    output.append(data.data);
-    ws.send("acknowledged");
-  };
+  new Output(elem).connect();
 });

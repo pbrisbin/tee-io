@@ -1,13 +1,6 @@
-<div .page-header>
-  <h1>
-    <code>
-      tee.io
-
-    <small>
-      it's like 
-      <a href="http://linux.die.net/man/1/tee">
-        <code>tee(1)
-      as a service
+<h1>
+  <code>
+    tee.io
 
 <p>
   It can often be useful to execute a command on a system and both monitor and
@@ -18,3 +11,53 @@
   <code>
     tee.io
   comes in is for commands on remote systems.
+
+<p>
+  It's like 
+  <a href="http://linux.die.net/man/1/tee">
+    <code>tee(1)
+  as a service
+
+<h2>
+  Usage
+
+<p>
+  Before starting your command, grab a token from 
+  <code>
+    tee.io
+  \.
+
+<p>
+  This can be done in any programming language, or via the provided CLI:
+
+<pre>
+  <code>
+    \% tee-io start
+    \Token:              a73285ce-436b-4c56-a1d6-2c2b49f92b84
+    \View output at:     https://tee.io/commands/a73285ce-436b-4c56-a1d6-2c2b49f92b84
+    \Generate output to: https://tee.io/commands/a73285ce-436b-4c56-a1d6-2c2b49f92b84/output
+
+<p>
+  As your command is running, 
+  <code>POST
+  output one line at a time to the URL shown.
+
+<p>
+  Again, this can be done in any programming language, or via the provided CLI:
+
+<pre>
+  <code>
+    ./bin/deploy | tee-io append a73285ce-436b-4c56-a1d6-2c2b49f92b84
+
+<p>
+  Watch your command output appear one line at a time in the browser.
+
+<p>
+  When you're command is finished, let 
+  <code>
+    tee.io
+  know.
+
+<pre>
+  <code>
+    tee-io stop a73285ce-436b-4c56-a1d6-2c2b49f92b84

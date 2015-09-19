@@ -1,4 +1,2 @@
 <pre>
-  <code #output data-stream-start=#{length outputs}>
-    $forall output <- outputs
-      #{outputContent output <> "\n"}
+  <code #output data-stream-url=@{OutputR token}>

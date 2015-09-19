@@ -7,7 +7,7 @@ module Storage
     , updateCommand
     , createOutput
     , getCommandData
-    , getOutputs
+    , getOutput
     ) where
 
 import Model
@@ -47,10 +47,10 @@ throwError = throwE . GenericError
 -- | Insert the command into storage and return its token
 createCommand :: Command -> Storage Token
 createCommand command = do
-    lift $ $(logDebug) "creating command"
     token <- newToken
     outputToken <- OutputToken <$> newToken
 
+    lift $ $(logDebug) "creating command"
     lift $ $(logDebug) $ "token " <> pack (show token)
     lift $ $(logDebug) $ "output token " <> pack (show outputToken)
 
@@ -65,7 +65,7 @@ updateCommand :: Token -> Command -> Storage ()
 updateCommand token command = do
     cd <- getCommandData token
 
-    lift $ $(logDebug) "updating command data"
+    lift $ $(logDebug) "updating command"
     lift $ $(logDebug) $ "token " <> pack (show token)
 
     void $ runRedis $ Redis.set (toKey token) $ toValue cd { cdCommand = command }
@@ -80,33 +80,19 @@ createOutput (OutputToken token) output = do
 -- | Retrieve the data associated with a command
 getCommandData :: Token -> Storage CommandData
 getCommandData token = do
-    lift $ $(logDebug) "getting command data"
-    lift $ $(logDebug) $ "token " <> pack (show token)
     value <- runRedis $ Redis.get $ toKey token
 
     maybe (lift notFound) parseValue value
 
 -- | Retrieve the outputs associated with a command
-getOutputs
-    :: OutputToken
-    -> Maybe Integer -- start entry
-    -> Maybe Integer -- stop entry
-    -> Storage [Output]
-getOutputs (OutputToken token) (Just start) (Just stop) = do
-    lift $ $(logDebug) "getting command outputs"
-    bs <- runRedis $ Redis.lrange (toKey token) start stop
+getOutput :: OutputToken -> Integer -> Storage [Output]
+getOutput (OutputToken token) start = do
+    l <- runRedis $ Redis.llen (toKey token)
+    bs <- runRedis $ Redis.lrange (toKey token) start l
 
     mapM parseValue bs
 
-getOutputs ot@(OutputToken token) x Nothing = do
-    len <- runRedis $ Redis.llen (toKey token)
-
-    getOutputs ot x (Just len)
-
-getOutputs token Nothing x = getOutputs token (Just 0) x
-
 newToken :: Storage Token
---newToken = lift $ fst . random . appRandomGem <$> getYesod
 newToken = liftIO $ randomIO
 
 toKey :: Token -> ByteString

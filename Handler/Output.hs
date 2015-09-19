@@ -11,22 +11,16 @@ postOutputR token = do
 
     runStorage' $ do
         cd <- getCommandData token
-
-        if commandRunning $ cdCommand cd
-            then createOutput (cdOutputToken cd) body
-            else throwError "command not running"
+        createOutput (cdOutputToken cd) body
 
 getOutputR :: Token -> Handler ()
 getOutputR token = do
     cd <- runStorage' $ getCommandData token
-    start <- runInputGet $ ireq intField "start"
-
-    webSockets $ outputStream token (cdOutputToken cd) start
+    webSockets $ outputStream token (cdOutputToken cd) 0
 
 outputStream :: Token -> OutputToken -> Integer -> WebSocketsT Handler ()
 outputStream token outputToken start = do
-    outputs <- lift $ runStorage' $
-        getOutputs outputToken (Just start) Nothing
+    outputs <- lift $ runStorage' $ getOutput outputToken start
 
     forM_ outputs $ \output -> do
         sendTextData $ outputContent output
@@ -35,8 +29,9 @@ outputStream token outputToken start = do
         $(logDebug) $ "received acknowledgement " <> ack
 
     cd <- lift $ runStorage' $ getCommandData token
-    when (commandRunning $ cdCommand cd) $
-        outputStream token outputToken $ start + genericLength outputs
+    if (commandRunning $ cdCommand cd)
+        then outputStream token outputToken $ start + genericLength outputs
+        else sendClose ("command no longer running" :: Text)
 
 runStorage' :: Storage a -> Handler a
 runStorage' = either (error . show) return <=< runStorage
