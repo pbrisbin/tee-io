@@ -1,1 +1,20 @@
-<h1>Hello World
+<div .page-header>
+  <h1>
+    <code>
+      tee.io
+
+    <small>
+      it's like 
+      <a href="http://linux.die.net/man/1/tee">
+        <code>tee(1)
+      as a service
+
+<p>
+  It can often be useful to execute a command on a system and both monitor and
+  capture that output as it's being produced by the command. This is what 
+  <code>
+    tee(1)
+  is good for. Where 
+  <code>
+    tee.io
+  comes in is for commands on remote systems.
