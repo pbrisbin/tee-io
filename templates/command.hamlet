@@ -1,0 +1,4 @@
+<pre>
+  <code>
+    $forall output <- outputs
+      #{outputContent output}

@@ -1,14 +1,12 @@
 module Handler.Commands where
 
 import Import
-import qualified Data.ByteString.Lazy as BL
-import qualified Database.Redis as Redis
 
-postCommandsR :: Handler ()
+postCommandsR :: Handler Value
 postCommandsR = do
-    token <- (fst . random . appRandomGem) <$> getYesod
+    body <- requireJsonBody
+    result <- runStorage $ createCommand body
 
-    let json = BL.toStrict $ encode $ newCommand
-    void $ runRedis $ Redis.set (tokenToBS token) json
-
-    redirect $ CommandR token
+    case result of
+        Left err -> error $ show err -- TODO
+        Right token -> return $ object ["token" .= token]

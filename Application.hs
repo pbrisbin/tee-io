@@ -52,7 +52,6 @@ makeFoundation appSettings = do
     appStatic <-
         (if appMutableStatic appSettings then staticDevel else static)
         (appStaticDir appSettings)
-    appRandomGem <- newStdGen
     appRedis <- Redis.connect Redis.defaultConnectInfo
 
     -- Return the foundation

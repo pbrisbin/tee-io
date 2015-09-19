@@ -17,7 +17,6 @@ data App = App
     , appStatic      :: Static -- ^ Settings for static file serving.
     , appHttpManager :: Manager
     , appLogger      :: Logger
-    , appRandomGem   :: StdGen
     , appRedis       :: Redis.Connection
     }
 
@@ -99,10 +98,6 @@ instance Yesod App where
 instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
 
-runRedis :: Redis.Redis a -> Handler a
-runRedis a = do
-    conn <- appRedis <$> getYesod
-    liftIO $ Redis.runRedis conn a
 
 unsafeHandler :: App -> Handler a -> IO a
 unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger
