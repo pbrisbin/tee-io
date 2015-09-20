@@ -18,46 +18,45 @@
     <code>tee(1)
   as a service
 
-<h2>
-  Usage
+<h2>Client
 
 <p>
-  Before starting your command, grab a token from 
-  <code>
-    tee.io
-  \.
+  A POSIX shell script is provided to simplify interaction in the common case.
 
 <p>
-  This can be done in any programming language, or via the provided CLI:
-
-<pre>
-  <code>
-    \% tee-io start
-    \Token:              a73285ce-436b-4c56-a1d6-2c2b49f92b84
-    \View output at:     https://tee.io/commands/a73285ce-436b-4c56-a1d6-2c2b49f92b84
-    \Generate output to: https://tee.io/commands/a73285ce-436b-4c56-a1d6-2c2b49f92b84/output
+  It is a simple wrapper around JSON API calls which you are also welcome to
+  perform directly in your programming language of choice. Please refer directly
+  to its source as an API reference (for now).
 
 <p>
-  As your command is running, 
-  <code>POST
-  output one line at a time to the URL shown.
+  It's only dependencies (besides the shell) are curl and sed.
+
+<ul>
+  <li>
+    Download the 
+    <a href=@{StaticR tee_io}>
+      client script
+    and place it somewhere on your 
+    <code>
+      \$PATH
+
+  <li>
+    Pipe command output to this script:
+
+    <pre>
+      <code>
+        cap deploy | tee-io
+
+  <li>
+    Follow command output at the printed URL
+
+  <li>
+    See 
+    <code>
+      tee-io --help
+    for more details.
+
+<h2>API
 
 <p>
-  Again, this can be done in any programming language, or via the provided CLI:
-
-<pre>
-  <code>
-    ./bin/deploy | tee-io append a73285ce-436b-4c56-a1d6-2c2b49f92b84
-
-<p>
-  Watch your command output appear one line at a time in the browser.
-
-<p>
-  When you're command is finished, let 
-  <code>
-    tee.io
-  know.
-
-<pre>
-  <code>
-    tee-io stop a73285ce-436b-4c56-a1d6-2c2b49f92b84
+  <em>TODO: document
