@@ -15,13 +15,17 @@ options:
 EOF
 }
 
+json_escape() {
+  printf -- "%s" "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
 curl_json() {
-  local path=$1 data=${2:-'{}'} method=${3:-POST}
+  local path=$1 method=${2:-POST}
 
   curl \
     --silent \
     --header "Content-type: application/json" \
-    --request "$method" --data "$data" "$host$path"
+    --request "$method" --data @- "$host$path"
 }
 
 host="http://localhost:3000"
@@ -44,20 +48,28 @@ while [ -n "$1" ]; do
 done
 
 if [ -n "$description" ]; then
-  token=$(curl_json "/commands" "{\"description\":\"$description\"}")
+  token=$(curl_json "/commands" <<EOF
+{
+  "description":"$(json_escape "$description")"
+}
+EOF
+  )
 else
-  token=$(curl_json "/commands" '{}')
+  token=$(echo '{}' | curl_json "/commands")
 fi
 
 printf "%s/commands/%s\n" "$host" "$token"
 
-while read; do
-  output=$(printf -- "%s" "$REPLY" | sed 's/"/\\"/g')
-  curl_json "/commands/$token/output" "{\"content\":\"$output\\n\"}"
+while read -r; do
+  curl_json "/commands/$token/output" <<EOF
+{
+  "content":"$(json_escape "$REPLY")\\n"
+}
+EOF
 
   if [ $quiet -ne 1 ]; then
     printf -- "%s\n" "$REPLY"
   fi
 done
 
-curl_json "/commands/$token" '{"running":false}' PUT
+echo '{"running":false}' | curl_json "/commands/$token" PUT
