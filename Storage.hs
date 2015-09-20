@@ -112,7 +112,7 @@ toValue :: ToJSON a => a -> ByteString
 toValue = BL.toStrict . encode
 
 parseValue :: FromJSON a => ByteString -> Storage a
-parseValue = either (throwError) return . eitherDecode . fromStrict
+parseValue = either (throwE . JSONParseError) return . eitherDecode . fromStrict
 
 runRedis :: Redis.Redis (Either Redis.Reply a) -> Storage a
 runRedis a = do
