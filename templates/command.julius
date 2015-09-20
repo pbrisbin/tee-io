@@ -10,6 +10,8 @@ Output.prototype.append = function(text) {
     , newText = currentText + text;
 
   this.elem.textContent = newText;
+
+  window.scrollTo(0, document.body.scrollHeight);
 };
 
 Output.prototype.connect = function() {
