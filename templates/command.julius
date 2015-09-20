@@ -16,6 +16,10 @@ Output.prototype.connect = function() {
   var self = this
     , socket = new WebSocket(this.streamUrl);
 
+  socket.onerror = function(data) {
+    console.log("websockets error", data);
+  };
+
   socket.onmessage = function(data) {
     self.append(data.data);
     socket.send("acknowledged");
