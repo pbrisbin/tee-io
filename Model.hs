@@ -26,7 +26,7 @@ instance PathPiece Token where
 
 data Command = Command
     { commandRunning :: Bool
-    , commandDescription :: Text
+    , commandDescription :: Maybe Text
     }
 
 instance ToJSON Command where
@@ -38,23 +38,26 @@ instance ToJSON Command where
 instance FromJSON Command where
     parseJSON = withObject "Command" $ \o -> Command
         <$> o .:? "running" .!= True
-        <*> o .:? "description" .!= ""
+        <*> o .:? "description"
 
 data CommandData = CommandData
     { cdCommand :: Command
     , cdOutputToken :: OutputToken
+    , cdCreatedAt :: UTCTime
     }
 
 instance ToJSON CommandData where
     toJSON CommandData{..} = object
         [ "command" .= cdCommand
         , "output_token" .= cdOutputToken
+        , "created_at" .= cdCreatedAt
         ]
 
 instance FromJSON CommandData where
     parseJSON = withObject "CommandData" $ \o -> CommandData
         <$> o .: "command"
         <*> o .: "output_token"
+        <*> o .: "created_at"
 
 data Output = Output
     { outputContent :: Text

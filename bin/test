@@ -10,4 +10,4 @@
   echo "line 8"; sleep 1
   echo "line 9"; sleep 1
   echo "line 10";
-} | bin/tee-io --quiet
+} | bin/tee-io -d "A test command" --quiet

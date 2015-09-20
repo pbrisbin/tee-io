@@ -1,2 +1,14 @@
+<p>
+  <span .right>
+    <strong>created at:
+    #{show $ cdCreatedAt cd}
+
+  <strong>command:
+  $maybe desc <- commandDescription $ cdCommand cd
+    #{desc}
+  $nothing
+    no description
+
+<hr>
 <pre>
   <code #output data-stream-url=@{OutputR token}>

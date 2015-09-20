@@ -63,7 +63,8 @@ createCommand command = do
     lift $ $(logDebug) $ "token " <> pack (show token)
     lift $ $(logDebug) $ "output token " <> pack (show outputToken)
 
-    let commandData = CommandData command outputToken
+    t <- liftIO getCurrentTime
+    let commandData = CommandData command outputToken t
 
     void $ runRedis $ Redis.set (toKey token) $ toValue commandData
 

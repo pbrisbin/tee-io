@@ -7,9 +7,10 @@ usage: CMD | tee-io [OPTION, ...]
 
 options:
 
-  -q, --quiet   don't echo captured output
-  -H, --host    send data to a different host
-  -h, --help    show this message
+  -d, --description [DESCRIPTION]       include command description
+  -q, --quiet                           don't echo captured output
+  -H, --host                            send data to a different host
+  -h, --help                            show this message
 
 EOF
 }
@@ -25,9 +26,14 @@ curl_json() {
 
 host="http://localhost:3000"
 quiet=0
+description=""
 
 while [ -n "$1" ]; do
   case "$1" in
+    -d|--description)
+      shift
+      description=$(printf "%s" "$1" | sed 's/"/\\"/g')
+      ;;
     -q|--quiet) quiet=1 ;;
     -H|--host) shift; host=$1 ;;
     -h|--help) usage; exit ;;
@@ -37,7 +43,12 @@ while [ -n "$1" ]; do
   shift
 done
 
-token=$(curl_json "/commands" '{}')
+if [ -n "$description" ]; then
+  token=$(curl_json "/commands" "{\"description\":\"$description\"}")
+else
+  token=$(curl_json "/commands" '{}')
+fi
+
 printf "%s/commands/%s\n" "$host" "$token"
 
 while read; do
