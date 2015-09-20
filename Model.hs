@@ -14,6 +14,9 @@ instance ToJSON Token where
 instance FromJSON Token where
     parseJSON = maybe mzero (return . Token) . fromText <=< parseJSON
 
+tokenText :: Token -> Text
+tokenText = toText . tokenUUID
+
 newtype OutputToken = OutputToken Token
     deriving (Show, FromJSON, ToJSON)
 

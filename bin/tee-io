@@ -1,0 +1,52 @@
+#!/bin/sh
+set -e
+
+usage() {
+  cat <<EOF
+usage: CMD | tee-io [OPTION, ...]
+
+options:
+
+  -q, --quiet   don't echo captured output
+  -H, --host    send data to a different host
+  -h, --help    show this message
+
+EOF
+}
+
+curl_json() {
+  local path=$1 data=${2:-'{}'} method=${3:-POST}
+
+  curl \
+    --silent \
+    --header "Content-type: application/json" \
+    --request "$method" --data "$data" "$host$path"
+}
+
+host="http://localhost:3000"
+quiet=0
+
+while [ -n "$1" ]; do
+  case "$1" in
+    -q|--quiet) quiet=1 ;;
+    -H|--host) shift; host=$1 ;;
+    -h|--help) usage; exit ;;
+    *) usage >&2; exit 64 ;;
+  esac
+
+  shift
+done
+
+token=$(curl_json "/commands" '{}')
+printf "%s/commands/%s\n" "$host" "$token"
+
+while read; do
+  output=$(printf -- "%s" "$REPLY" | sed 's/"/\\"/g')
+  curl_json "/commands/$token/output" "{\"content\":\"$output\\n\"}"
+
+  if [ $quiet -ne 1 ]; then
+    printf -- "%s\n" "$REPLY"
+  fi
+done
+
+curl_json "/commands/$token" '{"running":false}' PUT

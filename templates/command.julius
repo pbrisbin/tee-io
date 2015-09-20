@@ -7,7 +7,7 @@ function Output(elem) {
 
 Output.prototype.append = function(text) {
   var currentText = this.elem.textContent
-    , newText = currentText + text + "\n";
+    , newText = currentText + text;
 
   this.elem.textContent = newText;
 };

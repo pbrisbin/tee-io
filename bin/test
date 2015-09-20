@@ -1,25 +1,13 @@
 #!/bin/sh
-set -e -o pipefail
-
-curl_json() {
-  local path=$1 data=${2:-'{}'} method=${3:-POST}
-
-  curl \
-    -H "Content-type: application/json" \
-    -X "$method" -d "$data" "http://localhost:3000$path"
-}
-
-token=$(curl_json "/commands" '{}' | jq --raw-output '.token')
-printf "http://localhost:3000/commands/%s\n" "$token"; sleep 3
-
-curl_json "/commands/$token/output" '{"content":"line 1"}'; sleep 1
-curl_json "/commands/$token/output" '{"content":"line 2"}'; sleep 2
-curl_json "/commands/$token/output" '{"content":"line 3"}'; sleep 1
-curl_json "/commands/$token/output" '{"content":"line 4"}'; sleep 2
-curl_json "/commands/$token/output" '{"content":"line 5"}'; sleep 2
-curl_json "/commands/$token/output" '{"content":"line 6"}'; sleep 1
-curl_json "/commands/$token/output" '{"content":"line 7"}'; sleep 2
-curl_json "/commands/$token/output" '{"content":"line 8"}'; sleep 1
-curl_json "/commands/$token/output" '{"content":"line 9"}'; sleep 1
-curl_json "/commands/$token/output" '{"content":"line 10"}'
-curl_json "/commands/$token" '{"running":false}' PUT
+{
+  echo "line 1"; sleep 1
+  echo "line 2"; sleep 2
+  echo "line 3"; sleep 1
+  echo "line 4"; sleep 2
+  echo "line 5"; sleep 2
+  echo "line 6"; sleep 1
+  echo "line 7"; sleep 2
+  echo "line 8"; sleep 1
+  echo "line 9"; sleep 1
+  echo "line 10";
+} | bin/tee-io --quiet
