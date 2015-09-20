@@ -1,0 +1,21 @@
+#!/bin/sh
+{
+
+  echo "hello"; sleep 3
+
+  echo "i am an example command printing some output"; sleep 1
+
+  echo "you can imagine i'm running a test"
+  echo "or deploying an application"
+  echo "or maybe reading some log files"; sleep 2
+
+  echo "my output is being forwarded to tee.io via this script:"
+  echo ""; sleep 2
+  sed 's/^/  > /g' bin/tee-io
+  echo ""; sleep 1
+
+  echo "you should be seeing it live in a web page"
+  echo "as it's produced"; sleep 1
+  echo "hopefully it worked?";
+
+}
