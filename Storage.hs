@@ -8,6 +8,7 @@ module Storage
     , createOutput
     , getCommandData
     , getOutput
+    , unsafeRunStorage
     ) where
 
 import Model
@@ -39,6 +40,14 @@ type Storage = ExceptT StorageError Handler
 -- | Run a @'Storage'@ computation for an @'Either'@ result
 runStorage :: Storage a -> Handler (Either StorageError a)
 runStorage = runExceptT
+
+-- | Run a @'Storage@' computation in an unsafe way
+--
+-- Errors are logged and raised with @'error'@
+unsafeRunStorage :: Storage a -> Handler a
+unsafeRunStorage = either (err . show) return <=< runStorage
+  where
+    err msg = $(logError) (pack msg) >> error msg
 
 -- | Throw a generic @'StorageError'@
 throwError :: String -> Storage a

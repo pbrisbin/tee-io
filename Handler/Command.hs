@@ -4,7 +4,7 @@ import Import
 
 getCommandR :: Token -> Handler Html
 getCommandR token = do
-    void $ runStorage $ getCommandData token
+    cd <- unsafeRunStorage $ getCommandData token
 
     defaultLayout $ do
         setTitle "tee.io - Command"
@@ -13,4 +13,4 @@ getCommandR token = do
 putCommandR :: Token -> Handler ()
 putCommandR token = do
     command <- requireJsonBody
-    void $ runStorage $ updateCommand token command
+    void $ unsafeRunStorage $ updateCommand token command
