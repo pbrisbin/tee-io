@@ -6,6 +6,7 @@ host:           "_env:HOST:*4" # any IPv4 host
 port:           "_env:PORT:3000"
 approot:        "_env:APPROOT:http://localhost:3000"
 ip-from-header: "_env:IP_FROM_HEADER:false"
+redis-url:      "_env:REDIS_URL:redis://localhost:6379"
 
 # Optional values with the following production defaults.
 # In development, they default to the inverse.

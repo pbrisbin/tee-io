@@ -26,6 +26,7 @@ library
                      Handler.Commands
                      Handler.Command
                      Handler.Output
+                     Database.Redis.URI
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -86,6 +87,7 @@ library
                  , hedis
                  , transformers
                  , yesod-websockets
+                 , parsec
 
 executable         tee-io
     if flag(library-only)
@@ -100,7 +102,7 @@ executable         tee-io
 test-suite test
     type:              exitcode-stdio-1.0
     main-is:           Spec.hs
-    hs-source-dirs:    test
+    hs-source-dirs:    src, test
     ghc-options:       -Wall
 
     extensions: TemplateHaskell
@@ -122,15 +124,5 @@ test-suite test
 
     build-depends: base
                  , tee-io
-                 , yesod-test >= 1.4.3 && < 1.5
-                 , yesod-core
-                 , yesod
-                 , persistent
-                 , persistent-sqlite
-                 , resourcet
-                 , monad-logger
-                 , shakespeare
-                 , transformers
                  , hspec >= 2.0.0
-                 , classy-prelude
-                 , classy-prelude-yesod
+                 , hedis

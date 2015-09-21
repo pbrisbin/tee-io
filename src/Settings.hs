@@ -43,6 +43,7 @@ data AppSettings = AppSettings
     -- ^ Assume that files in the static dir may change after compilation
     , appSkipCombining          :: Bool
     -- ^ Perform no stylesheet/script combining
+    , appRedisURL               :: Text
     }
 
 instance FromJSON AppSettings where
@@ -58,6 +59,7 @@ instance FromJSON AppSettings where
         appHost                   <- fromString <$> o .: "host"
         appPort                   <- o .: "port"
         appIpFromHeader           <- o .: "ip-from-header"
+        appRedisURL               <- o .: "redis-url"
 
         appDetailedRequestLogging <- o .:? "detailed-logging" .!= defaultDev
         appShouldLogAll           <- o .:? "should-log-all"   .!= defaultDev
