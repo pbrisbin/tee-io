@@ -17,8 +17,7 @@ instance FromJSON Request where
         <$> o .:? "running" .!= True
         <*> o .:? "desctription"
 
--- TODO Text/Value
-postCommandsR :: Handler Text
+postCommandsR :: Handler TypedContent
 postCommandsR = do
     now <- liftIO getCurrentTime
     req <- requireJsonBody
@@ -31,7 +30,9 @@ postCommandsR = do
         , commandUpdatedAt = now
         }
 
-    return $ tokenText token
+    selectRep $ do
+        provideRep $ return $ tokenText token
+        provideRep $ return $ object ["token" .= tokenText token]
 
 putCommandR :: Token -> Handler ()
 putCommandR token = do
@@ -47,11 +48,12 @@ putCommandR token = do
             , commandUpdatedAt = now
             }
 
--- TODO Html/JSON
-getCommandR :: Token -> Handler Html
+getCommandR :: Token -> Handler TypedContent
 getCommandR token = do
     command <- unsafeRunStorage $ get404 token
 
-    defaultLayout $ do
-        setTitle "tee.io - Command"
-        $(widgetFile "command")
+    selectRep $ do
+        provideRep $ return $ toJSON command
+        provideRep $ defaultLayout $ do
+            setTitle "tee.io - Command"
+            $(widgetFile "command")
