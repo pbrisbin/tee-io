@@ -101,7 +101,7 @@ executable         tee-io
 test-suite test
     type:              exitcode-stdio-1.0
     main-is:           Spec.hs
-    hs-source-dirs:    src, test
+    hs-source-dirs:    test
     ghc-options:       -Wall
 
     extensions: TemplateHaskell
@@ -120,6 +120,7 @@ test-suite test
                 DeriveDataTypeable
                 ViewPatterns
                 TupleSections
+                RecordWildCards
 
     build-depends: base
                  , tee-io
