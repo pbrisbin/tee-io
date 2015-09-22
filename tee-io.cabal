@@ -23,7 +23,6 @@ library
                      Settings.StaticFiles
                      Handler.Common
                      Handler.Home
-                     Handler.Commands
                      Handler.Command
                      Handler.Output
                      Database.Redis.URI

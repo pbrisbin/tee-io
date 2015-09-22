@@ -1,26 +1,41 @@
-module Handler.Output where
+module Handler.Output
+    ( postOutputR
+    , getOutputR
+    ) where
 
-import Import
+import Import hiding (Request)
 
 import Data.List (genericLength)
 import Yesod.WebSockets
 
+data Request = Request
+    { reqContent :: Text
+    }
+
+instance FromJSON Request where
+    parseJSON = withObject "Output.Request" $ \o -> Request
+        <$> o .: "content"
+
 postOutputR :: Token -> Handler ()
 postOutputR token = do
-    body <- requireJsonBody
+    now <- liftIO getCurrentTime
+    req <- requireJsonBody
+
+    let output = Output
+            { outputContent = reqContent req
+            , outputCreatedAt = now
+            }
 
     unsafeRunStorage $ do
-        cd <- getCommandData token
-        createOutput (cdOutputToken cd) body
+        void $ (get404 token :: Storage Command)
+        void $ rpush (History token) output
 
 getOutputR :: Token -> Handler ()
-getOutputR token = do
-    cd <- unsafeRunStorage $ getCommandData token
-    webSockets $ outputStream token (cdOutputToken cd) 0
+getOutputR token = webSockets $ outputStream token 0
 
-outputStream :: Token -> OutputToken -> Integer -> WebSocketsT Handler ()
-outputStream token outputToken start = do
-    outputs <- lift $ unsafeRunStorage $ getOutput outputToken start
+outputStream :: Token -> Integer -> WebSocketsT Handler ()
+outputStream token start = do
+    outputs <- lift $ unsafeRunStorage $ lget (History token) start
 
     forM_ outputs $ \output -> do
         sendTextData $ outputContent output
@@ -28,7 +43,7 @@ outputStream token outputToken start = do
         ack <- receiveData -- ensure someone's listening
         $(logDebug) $ "received acknowledgement " <> ack
 
-    cd <- lift $ unsafeRunStorage $ getCommandData token
-    if (commandRunning $ cdCommand cd)
-        then outputStream token outputToken $ start + genericLength outputs
+    command <- lift $ unsafeRunStorage $ get404 token
+    if (commandRunning command)
+        then outputStream token $ start + genericLength outputs
         else sendClose ("command no longer running" :: Text)

@@ -17,9 +17,6 @@ instance FromJSON Token where
 tokenText :: Token -> Text
 tokenText = toText . tokenUUID
 
-newtype OutputToken = OutputToken Token
-    deriving (Show, FromJSON, ToJSON)
-
 instance PathPiece Token where
     toPathPiece = toText . tokenUUID
     fromPathPiece = fmap Token . fromText
@@ -27,47 +24,37 @@ instance PathPiece Token where
 data Command = Command
     { commandRunning :: Bool
     , commandDescription :: Maybe Text
+    , commandCreatedAt :: UTCTime
+    , commandUpdatedAt :: UTCTime
     }
 
 instance ToJSON Command where
     toJSON Command{..} = object
         [ "running" .= commandRunning
         , "description" .= commandDescription
+        , "created_at" .= commandCreatedAt
+        , "updated_at" .= commandUpdatedAt
         ]
 
 instance FromJSON Command where
     parseJSON = withObject "Command" $ \o -> Command
-        <$> o .:? "running" .!= True
-        <*> o .:? "description"
-
-data CommandData = CommandData
-    { cdCommand :: Command
-    , cdOutputToken :: OutputToken
-    , cdCreatedAt :: UTCTime
-    }
-
-instance ToJSON CommandData where
-    toJSON CommandData{..} = object
-        [ "command" .= cdCommand
-        , "output_token" .= cdOutputToken
-        , "created_at" .= cdCreatedAt
-        ]
-
-instance FromJSON CommandData where
-    parseJSON = withObject "CommandData" $ \o -> CommandData
-        <$> o .: "command"
-        <*> o .: "output_token"
+        <$> o .: "running"
+        <*> o .: "description"
         <*> o .: "created_at"
+        <*> o .: "updated_at"
 
 data Output = Output
     { outputContent :: Text
+    , outputCreatedAt :: UTCTime
     }
 
 instance ToJSON Output where
     toJSON Output{..} = object
         [ "content" .= outputContent
+        , "created_at" .= outputCreatedAt
         ]
 
 instance FromJSON Output where
     parseJSON = withObject "Output" $ \o -> Output
         <$> o .: "content"
+        <*> o .: "created_at"

@@ -1,10 +1,10 @@
 <p>
   <span .right>
     <strong>created at:
-    #{show $ cdCreatedAt cd}
+    #{show $ commandCreatedAt command}
 
   <strong>command:
-  $maybe desc <- commandDescription $ cdCommand cd
+  $maybe desc <- commandDescription command
     #{desc}
   $nothing
     no description

@@ -2,19 +2,21 @@ module Storage
     ( Storage
     , StorageError(..)
     , runStorage
-    , throwError
-    , createCommand
-    , updateCommand
-    , createOutput
-    , getCommandData
-    , getOutput
     , unsafeRunStorage
+    , throwError
+    , StorageKey(..)
+    , HistoryToken(..)
+    , newToken
+    , get404
+    , set
+    , lget
+    , rpush
     ) where
 
 import Model
 import Foundation
 
-import ClassyPrelude.Yesod
+import ClassyPrelude.Yesod hiding (get404)
 import Control.Monad.Trans.Except
 import Data.Aeson hiding (Result)
 import Data.UUID
@@ -26,12 +28,16 @@ import qualified Database.Redis as Redis
 -- | Errors that may occur when interacting with storage
 data StorageError
     = RedisError Redis.Reply
-    | JSONParseError String
+    | JSONParseError ByteString String
     | GenericError String
 
 instance Show StorageError where
     show (RedisError reply) = "Redis error: " <> show reply
-    show (JSONParseError err) = "JSON parse error: " <> err
+    show (JSONParseError bs err) = unlines
+        [ "JSON parse error"
+        , "source: " <> show bs
+        , "error: " <> err
+        ]
     show (GenericError err) = "Error: " <> err
 
 -- | @'ExceptT'@ fixed at @'StorageError'@ and @'Handler'@
@@ -53,66 +59,49 @@ unsafeRunStorage = either (err . show) return <=< runStorage
 throwError :: String -> Storage a
 throwError = throwE . GenericError
 
--- | Insert the command into storage and return its token
-createCommand :: Command -> Storage Token
-createCommand command = do
-    token <- newToken
-    outputToken <- OutputToken <$> newToken
+class StorageKey a where
+    toKey :: a -> ByteString
 
-    lift $ $(logDebug) "creating command"
-    lift $ $(logDebug) $ "token " <> pack (show token)
-    lift $ $(logDebug) $ "output token " <> pack (show outputToken)
+instance StorageKey Token where
+    toKey = encodeUtf8 . toText . tokenUUID
 
-    t <- liftIO getCurrentTime
-    let commandData = CommandData command outputToken t
+newtype HistoryToken = History Token deriving (Show, FromJSON, ToJSON)
 
-    void $ runRedis $ Redis.set (toKey token) $ toValue commandData
+instance StorageKey HistoryToken where
+    toKey (History t) = toKey t <> ".history"
 
-    return token
-
--- | Update a given command
-updateCommand :: Token -> Command -> Storage ()
-updateCommand token command = do
-    cd <- getCommandData token
-
-    lift $ $(logDebug) "updating command"
-    lift $ $(logDebug) $ "token " <> pack (show token)
-
-    void $ runRedis $ Redis.set (toKey token) $ toValue cd { cdCommand = command }
-
--- | Create output for a command
-createOutput :: OutputToken -> Output -> Storage ()
-createOutput (OutputToken token) output = do
-    lift $ $(logDebug) "creating command output"
-    lift $ $(logDebug) $ "token " <> pack (show token)
-    void $ runRedis $ Redis.rpush (toKey token) [toValue output]
-
--- | Retrieve the data associated with a command
-getCommandData :: Token -> Storage CommandData
-getCommandData token = do
+-- | A version of @get@ that returns @'notFound'@ when missing
+get404 :: (StorageKey k, FromJSON a) => k -> Storage a
+get404 token = do
     value <- runRedis $ Redis.get $ toKey token
 
     maybe (lift notFound) parseValue value
 
--- | Retrieve the outputs associated with a command
-getOutput :: OutputToken -> Integer -> Storage [Output]
-getOutput (OutputToken token) start = do
-    l <- runRedis $ Redis.llen (toKey token)
-    bs <- runRedis $ Redis.lrange (toKey token) start l
+-- | Pass-through to @set@
+set :: (StorageKey k, ToJSON a) => k -> a -> Storage ()
+set token = void . runRedis . Redis.set (toKey token) . toValue
+
+-- | Combine @llen@ and @lrange@ to get all elements in a list
+lget :: (StorageKey k, FromJSON a) => k -> Integer -> Storage [a]
+lget k start = do
+    l <- runRedis $ Redis.llen (toKey k)
+    bs <- runRedis $ Redis.lrange (toKey k) start l
 
     mapM parseValue bs
 
-newToken :: Storage Token
-newToken = liftIO $ randomIO
+-- | A verison of @rpush@ that takes a single element
+rpush :: (StorageKey k, ToJSON a) => k -> a -> Storage ()
+rpush k v = void $ runRedis $ Redis.rpush (toKey k) $ [toValue v]
 
-toKey :: Token -> ByteString
-toKey = encodeUtf8 . toText . tokenUUID
+newToken :: MonadIO m => m Token
+newToken = liftIO $ randomIO
 
 toValue :: ToJSON a => a -> ByteString
 toValue = BL.toStrict . encode
 
 parseValue :: FromJSON a => ByteString -> Storage a
-parseValue = either (throwE . JSONParseError) return . eitherDecode . fromStrict
+parseValue v = either (throwE . JSONParseError v) return
+    $ eitherDecode $ fromStrict v
 
 runRedis :: Redis.Redis (Either Redis.Reply a) -> Storage a
 runRedis a = do
