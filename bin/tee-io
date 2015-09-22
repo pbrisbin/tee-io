@@ -34,10 +34,7 @@ description=""
 
 while [ -n "$1" ]; do
   case "$1" in
-    -d|--description)
-      shift
-      description=$(printf "%s" "$1" | sed 's/"/\\"/g')
-      ;;
+    -d|--description) shift; description=$1 ;;
     -q|--quiet) quiet=1 ;;
     -H|--host) shift; host=$1 ;;
     -h|--help) usage; exit ;;
