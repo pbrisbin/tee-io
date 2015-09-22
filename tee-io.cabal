@@ -125,4 +125,12 @@ test-suite test
     build-depends: base
                  , tee-io
                  , hspec >= 2.0.0
+                 , hspec-expectations-lifted
+                 , aeson
+                 , classy-prelude
                  , hedis
+                 , http-types
+                 , wai-extra
+                 , yesod
+                 , yesod-core
+                 , yesod-test

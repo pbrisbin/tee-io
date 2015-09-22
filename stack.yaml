@@ -4,5 +4,6 @@ flags:
     dev: false
 packages:
 - '.'
-extra-deps: []
+extra-deps:
+- hspec-expectations-lifted-0.5.0
 resolver: lts-3.5
