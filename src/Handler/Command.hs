@@ -15,7 +15,7 @@ data Request = Request
 instance FromJSON Request where
     parseJSON = withObject "Command.Request" $ \o -> Request
         <$> o .:? "running"
-        <*> o .:? "desctription"
+        <*> o .:? "description"
 
 postCommandsR :: Handler TypedContent
 postCommandsR = do
