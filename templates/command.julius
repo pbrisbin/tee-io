@@ -2,7 +2,7 @@ function Output(elem) {
   this.elem = elem;
   this.streamUrl = elem.
     getAttribute("data-stream-url").
-    replace(/https?:/, "ws:");
+    replace(/http(s?):/, "ws$1:");
 }
 
 Output.prototype.append = function(text) {
