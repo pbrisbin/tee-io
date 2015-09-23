@@ -7,7 +7,6 @@ dependencies:
     - sudo mv /tmp/stack /usr/bin/stack
   override:
     - stack setup
-    - stack install --dependencies-only --enable-test
     - stack build
 
 test:
