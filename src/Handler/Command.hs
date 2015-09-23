@@ -8,13 +8,13 @@ module Handler.Command
 import Import hiding (Request)
 
 data Request = Request
-    { reqRunning :: Bool
+    { reqRunning :: Maybe Bool
     , reqDescription :: Maybe Text
     }
 
 instance FromJSON Request where
     parseJSON = withObject "Command.Request" $ \o -> Request
-        <$> o .:? "running" .!= True
+        <$> o .:? "running"
         <*> o .:? "desctription"
 
 postCommandsR :: Handler TypedContent
@@ -24,7 +24,7 @@ postCommandsR = do
     token <- newToken
 
     unsafeRunStorage $ set token $ Command
-        { commandRunning = reqRunning req
+        { commandRunning = fromMaybe True $ reqRunning req
         , commandDescription = reqDescription req
         , commandCreatedAt = now
         , commandUpdatedAt = now
@@ -42,9 +42,12 @@ putCommandR token = do
     unsafeRunStorage $ do
         command <- get404 token
 
+        let running = fromMaybe (commandRunning command) $ reqRunning req
+            description = maybe (commandDescription command) Just $ reqDescription req
+
         set token $ command
-            { commandRunning = reqRunning req
-            , commandDescription = reqDescription req
+            { commandRunning = running
+            , commandDescription = description
             , commandUpdatedAt = now
             }
 
