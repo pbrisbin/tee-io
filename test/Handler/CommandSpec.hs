@@ -37,7 +37,6 @@ spec = withApp $ do
         it "sets commandUpdatedAt and preserves existing fields" $ do
             now <- liftIO $ getCurrentTime
             token <- newToken
-
             runStorage' $ set token $ Command
                 { commandRunning = True
                 , commandDescription = Just "a description"
@@ -48,7 +47,6 @@ spec = withApp $ do
             putJSON (CommandR token) $ object ["running" .= False]
 
             updated <- runStorage' $ get404 token
-
             commandRunning updated `shouldBe` False
             commandDescription updated `shouldBe` Just "a description"
             commandUpdatedAt updated `shouldSatisfy` (not . (== now))
