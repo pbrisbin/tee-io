@@ -44,6 +44,7 @@ data AppSettings = AppSettings
     , appSkipCombining          :: Bool
     -- ^ Perform no stylesheet/script combining
     , appRedisURL               :: Text
+    , appS3Bucket               :: Text
     }
 
 instance FromJSON AppSettings where
@@ -60,6 +61,7 @@ instance FromJSON AppSettings where
         appPort                   <- o .: "port"
         appIpFromHeader           <- o .: "ip-from-header"
         appRedisURL               <- o .: "redis-url"
+        appS3Bucket               <- o .: "s3-bucket"
 
         appDetailedRequestLogging <- o .:? "detailed-logging" .!= defaultDev
         appShouldLogAll           <- o .:? "should-log-all"   .!= defaultDev

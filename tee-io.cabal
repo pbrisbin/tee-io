@@ -18,6 +18,7 @@ library
                      Import
                      Import.NoFoundation
                      Model
+                     Archive
                      Storage
                      Settings
                      Settings.StaticFiles
@@ -88,6 +89,8 @@ library
                  , yesod-websockets
                  , parsec
                  , load-env
+                 , aws
+                 , conduit-extra
 
 executable         tee-io
     if flag(library-only)

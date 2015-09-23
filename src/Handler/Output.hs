@@ -4,6 +4,7 @@ module Handler.Output
     ) where
 
 import Import hiding (Request)
+import Archive
 
 import Data.List (genericLength)
 import Data.Time (diffUTCTime)
@@ -49,10 +50,20 @@ outputStream token start = do
 
     if not $ stale now command
         then outputStream token $ start + genericLength outputs
-        else sendClose ("command no longer running" :: Text)
+        else do
+            lift $ archiveOutput command
+            sendClose ("command no longer running" :: Text)
 
   where
     -- command has been stopped for more than 10 minutes
     stale :: UTCTime -> Command -> Bool
     stale t Command{..} = not commandRunning &&
         diffUTCTime t commandUpdatedAt > 10 * 60
+
+    archiveOutput :: Command -> Handler ()
+    archiveOutput command = do
+        putOutput token =<< unsafeRunStorage (lget (History token) 0)
+
+        unsafeRunStorage $ do
+            set token $ command { commandArchived = True }
+            del $ History token

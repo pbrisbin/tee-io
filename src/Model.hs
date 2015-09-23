@@ -24,6 +24,7 @@ instance PathPiece Token where
 data Command = Command
     { commandRunning :: Bool
     , commandDescription :: Maybe Text
+    , commandArchived :: Bool
     , commandCreatedAt :: UTCTime
     , commandUpdatedAt :: UTCTime
     }
@@ -32,6 +33,7 @@ instance ToJSON Command where
     toJSON Command{..} = object
         [ "running" .= commandRunning
         , "description" .= commandDescription
+        , "archived" .= commandArchived
         , "created_at" .= commandCreatedAt
         , "updated_at" .= commandUpdatedAt
         ]
@@ -40,6 +42,7 @@ instance FromJSON Command where
     parseJSON = withObject "Command" $ \o -> Command
         <$> o .: "running"
         <*> o .: "description"
+        <*> o .:? "archived" .!= False
         <*> o .: "created_at"
         <*> o .: "updated_at"
 

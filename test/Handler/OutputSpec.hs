@@ -17,6 +17,7 @@ spec = withApp $ do
             runStorage' $ set token $ Command
                     { commandRunning = True
                     , commandDescription = Nothing
+                    , commandArchived = False
                     , commandCreatedAt = now
                     , commandUpdatedAt = now
                     }
@@ -40,6 +41,7 @@ spec = withApp $ do
                 set token $ Command
                     { commandRunning = True
                     , commandDescription = Nothing
+                    , commandArchived = False
                     , commandCreatedAt = now
                     , commandUpdatedAt = now
                     }

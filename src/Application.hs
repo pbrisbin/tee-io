@@ -33,6 +33,7 @@ import Handler.Home
 import Handler.Command
 import Handler.Output
 
+import qualified Aws as Aws
 import qualified Database.Redis.URI as Redis
 
 -- This line actually creates our YesodDispatch instance. It is the second half
@@ -56,6 +57,7 @@ makeFoundation appSettings = do
         (if appMutableStatic appSettings then staticDevel else static)
         (appStaticDir appSettings)
     appRedis <- Redis.connectURI $ appRedisURL appSettings
+    appAWSConfiguration <- Aws.baseConfiguration
 
     -- Return the foundation
     return $ App {..}
