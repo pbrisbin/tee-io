@@ -6,6 +6,7 @@ module Handler.Output
 import Import hiding (Request)
 
 import Data.List (genericLength)
+import Data.Time (diffUTCTime)
 import Yesod.WebSockets
 
 data Request = Request
@@ -43,7 +44,15 @@ outputStream token start = do
         ack <- receiveData -- ensure someone's listening
         $(logDebug) $ "received acknowledgement " <> ack
 
+    now <- liftIO $ getCurrentTime
     command <- lift $ unsafeRunStorage $ get404 token
-    if (commandRunning command)
+
+    if not $ stale now command
         then outputStream token $ start + genericLength outputs
         else sendClose ("command no longer running" :: Text)
+
+  where
+    -- command has been stopped for more than 10 minutes
+    stale :: UTCTime -> Command -> Bool
+    stale t Command{..} = not commandRunning &&
+        diffUTCTime t commandUpdatedAt > 10 * 60
