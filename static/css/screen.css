@@ -1,3 +1,9 @@
+footer {
+  border-top: 1px solid;
+  margin-bottom: 1em;
+  padding-top: 0.5em;
+}
+
 .container {
   margin: auto;
   width: 760px;
