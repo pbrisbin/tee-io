@@ -1,3 +1,7 @@
+img {
+  max-width: 100%;
+}
+
 footer {
   border-top: 1px solid;
   margin-bottom: 1em;
@@ -11,4 +15,8 @@ footer {
 
 .right {
   float: right;
+}
+
+.indent {
+  margin-left: 4em;
 }

@@ -3,60 +3,151 @@
     tee.io
 
 <p>
-  It can often be useful to execute a command on a system and both monitor and
-  capture that output as it's being produced by the command. This is what 
-  <code>
-    tee(1)
-  is good for. Where 
+  It can often be useful to execute a command on a system then both monitor and
+  capture that output as it's being produced by the command. This is what
+  <a href="http://linux.die.net/man/1/tee">
+    <code>
+      tee(1)
+  is good for.
   <code>
     tee.io
-  comes in is for commands on remote systems.
+  is sort of like that for commands run on
+  <em>remote
+  systems.
 
 <p>
-  It's like 
-  <a href="http://linux.die.net/man/1/tee">
-    <code>tee(1)
-  as a service
+  It's like
+  <code>tee(1)
+  as a service.
 
-<h2>Client
-
-<p>
-  A POSIX shell script is provided to simplify interaction in the common case.
+<h2>Motivation
 
 <p>
-  It is a simple wrapper around JSON API calls which you are also welcome to
-  perform directly in your programming language of choice. Please refer directly
-  to its source as an API reference (for now).
+  At
+  <a href="https://codeclimate.com">Code Climate</a>,
+  we frequently run commands on remote systems via a bot in our team chat
+  room.
 
 <p>
-  It's only dependencies (besides the shell) are curl and sed.
+  Typically, we would capture the
+  <code>stdout
+  and
+  <code>stderr
+  from these processes, manipulate it, format it, and post it back to chat. This
+  has a number of downsides:
 
 <ul>
-  <li>
-    Download the 
-    <a href=@{StaticR tee_io}>
-      client script
-    and place it somewhere on your 
-    <code>
-      \$PATH
-
-  <li>
-    Pipe command output to this script:
-
-    <pre>
-      <code>
-        cap deploy | tee-io
-
-  <li>
-    Follow command output at the printed URL
-
-  <li>
-    See 
-    <code>
-      tee-io --help
-    for more details.
-
-<h2>API
+  <li>The logic is non-trivial and situationally-dependent
+  <li>The output seriously clutters the chat history
+  <li>We have to wait for the command to complete before we see anything
 
 <p>
-  <em>TODO: document
+  To solve these problems, I built
+  <code>tee.io</code>.
+
+<!-- <img alt="demo" src=@{StaticR demo_gif}> -->
+
+<h2>Usage
+
+<p>
+  Interaction with
+  <code>tee.io
+  is done through a simple API. The following describes the API's endpoints and
+  their usage. There's also a reference
+  <a href=@{StaticR tee_io}>command-line client</a>.
+
+<h3>Start a command
+
+<p>
+  This endpoint is used to define a command and receive its token for use with
+  the rest of the API.
+
+<p>
+  Once created, the stream of command output can be viewed at
+  <code>/commands/:token</code>.
+
+<p>
+  <strong>Request:
+
+<pre .indent>
+  <code>
+    \POST /commands
+    \{
+    \  description: "...",
+    \  running: true
+    \}
+
+<p>
+  <strong>Response:
+
+<p>
+  <em>Note:
+  the response is different depending on the representation requested via the
+  <code>Accept
+  HTTP header.
+
+<pre .indent>
+  <code>
+    \Accept: application/json
+    \Status: 201
+    \Body:
+    \{
+    \  token: "2f5fdcf2-a903-42b6-1d1e-23df1d2a9c2b"
+    \}
+    \
+    \Accept: text/plain
+    \Status: 201
+    \Body:
+    \2f5fdcf2-a903-42b6-1d1e-23df1d2a9c2b
+    \
+    \Accept: text/html
+    \Status: 301
+    \Location: the URL where output can be viewed
+
+<h3>Generate output
+
+<p>
+  This endpoint is used to report output for the command.
+
+<p>
+  <em>Note:
+  each payload is appended to the stored history as-is. The means clients are
+  able to buffer the data as they see fit, but are in also charge of their own
+  trailing newlines if sending data line-buffered.
+
+<p>
+  <strong>Request:
+
+<pre .indent>
+  <code>
+    \POST /commands/:token/output
+    \{ content: "example output\n" }
+
+<p>
+  <strong>Response:
+  HTTP status
+  <code>201
+  if successful
+
+<h3>Stop the command
+
+<p>
+  This endpoint is used to notify
+  <code>tee.io
+  when the command is no longer producing new output. This fact is used to move
+  the output data to more appropriate storage once it's no longer being actively
+  generated.
+
+<p>
+  <strong>Request:
+
+<pre .indent>
+  <code>
+    \PATCH /commands/:token
+    \{ running: false }
+
+<p>
+  <strong>Response:
+  HTTP status
+  <code>200
+  if successful
