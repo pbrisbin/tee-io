@@ -69,4 +69,4 @@ EOF
   fi
 done
 
-echo '{"running":false}' | curl_json "/commands/$token" PUT
+echo '{"running":false}' | curl_json "/commands/$token" PATCH

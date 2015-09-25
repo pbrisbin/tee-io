@@ -1,7 +1,8 @@
 module Handler.Command
     ( postCommandsR
-    , putCommandR
+    , patchCommandR
     , getCommandR
+    , putCommandR
     )
     where
 
@@ -34,8 +35,8 @@ postCommandsR = do
         provideRep $ return $ tokenText token
         provideRep $ return $ object ["token" .= tokenText token]
 
-putCommandR :: Token -> Handler ()
-putCommandR token = do
+patchCommandR :: Token -> Handler ()
+patchCommandR token = do
     now <- liftIO getCurrentTime
     req <- requireJsonBody
 
@@ -60,3 +61,8 @@ getCommandR token = do
         provideRep $ defaultLayout $ do
             setTitle "tee.io - Command"
             $(widgetFile "command")
+
+-- Deprecated. Originally wrote the API to accept PUT with PATCH semantics. We
+-- still except it for older clients.
+putCommandR :: Token -> Handler ()
+putCommandR = patchCommandR

@@ -46,6 +46,14 @@ postJSON url body = request $ do
     setRequestBody $ encode body
     setUrl url
 
+patchJSON :: (RedirectUrl App url, ToJSON a) => url -> a -> YesodExample App ()
+patchJSON url body = request $ do
+    setMethod "PUT"
+    addRequestHeader (hAccept, "application/json")
+    addRequestHeader (hContentType, "application/json")
+    setRequestBody $ encode body
+    setUrl url
+
 putJSON :: (RedirectUrl App url, ToJSON a) => url -> a -> YesodExample App ()
 putJSON url body = request $ do
     setMethod "PUT"

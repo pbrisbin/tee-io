@@ -33,7 +33,7 @@ spec = withApp $ do
                 commandRunning command `shouldBe` True
                 commandDescription command `shouldBe` Just "test command"
 
-    describe "PUT /commands/token" $ do
+    describe "PATCH /commands/token" $ do
         it "sets commandUpdatedAt and preserves existing fields" $ do
             now <- liftIO $ getCurrentTime
             token <- newToken
@@ -44,7 +44,7 @@ spec = withApp $ do
                 , commandUpdatedAt = now
                 }
 
-            putJSON (CommandR token) $ object ["running" .= False]
+            patchJSON (CommandR token) $ object ["running" .= False]
 
             updated <- runStorage' $ get404 token
             commandRunning updated `shouldBe` False
