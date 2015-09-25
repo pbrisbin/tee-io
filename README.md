@@ -1,7 +1,5 @@
 # tee.io
 
-*Coming soon...*
-
 It's like `tee(1)` as a service.
 
 ## Demo
