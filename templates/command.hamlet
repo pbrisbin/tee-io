@@ -1,4 +1,4 @@
-<p>
+<header>
   <span .right>
     <strong>created at:
     #{show $ commandCreatedAt command}
@@ -9,6 +9,5 @@
   $nothing
     no description
 
-<hr>
 <pre>
   <code #output data-stream-url=@{OutputR token}>
