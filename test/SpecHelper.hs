@@ -38,6 +38,11 @@ withApp = before $ do
 runStorage' :: MonadIO m => Storage a -> m a
 runStorage' = liftIO . handler . unsafeRunStorage
 
+delete :: RedirectUrl App url => url -> YesodExample App ()
+delete url = request $ do
+    setMethod "DELETE"
+    setUrl url
+
 postJSON :: (RedirectUrl App url, ToJSON a) => url -> a -> YesodExample App ()
 postJSON url body = request $ do
     setMethod "POST"

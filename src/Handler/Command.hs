@@ -2,6 +2,7 @@ module Handler.Command
     ( postCommandsR
     , patchCommandR
     , getCommandR
+    , deleteCommandR
     , putCommandR
     )
     where
@@ -61,6 +62,11 @@ getCommandR token = do
         provideRep $ defaultLayout $ do
             setTitle "tee.io - Command"
             $(widgetFile "command")
+
+deleteCommandR :: Token -> Handler ()
+deleteCommandR token = unsafeRunStorage $ do
+    del token
+    del $ History token
 
 -- Deprecated. Originally wrote the API to accept PUT with PATCH semantics. We
 -- still except it for older clients.

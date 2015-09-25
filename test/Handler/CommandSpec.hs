@@ -50,3 +50,20 @@ spec = withApp $ do
             commandRunning updated `shouldBe` False
             commandDescription updated `shouldBe` Just "a description"
             commandUpdatedAt updated `shouldSatisfy` (not . (== now))
+
+    describe "DELETE /commands/token" $ do
+        it "deletes the command's data" $ do
+            now <- liftIO $ getCurrentTime
+            token <- newToken
+            runStorage' $ set token $ Command
+                { commandRunning = True
+                , commandDescription = Just "a description"
+                , commandCreatedAt = now
+                , commandUpdatedAt = now
+                }
+
+            delete $ CommandR token
+            statusIs 200
+
+            get $ CommandR token
+            statusIs 404

@@ -9,6 +9,7 @@ module Storage
     , newToken
     , get404
     , set
+    , del
     , lget
     , rpush
     ) where
@@ -80,6 +81,10 @@ get404 token = do
 -- | Pass-through to @set@
 set :: (StorageKey k, ToJSON a) => k -> a -> Storage ()
 set token = void . runRedis . Redis.set (toKey token) . toValue
+
+-- | Pass-through to @delete@
+del :: (StorageKey k) => k -> Storage ()
+del token = void $ runRedis $ Redis.del [toKey token]
 
 -- | Combine @llen@ and @lrange@ to get all elements in a list
 lget :: (StorageKey k, FromJSON a) => k -> Integer -> Storage [a]
