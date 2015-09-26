@@ -3,15 +3,15 @@
     tee.io
 
 <p>
-  It can often be useful to execute a command on a system then both monitor and
-  capture that output as it's being produced by the command. This is what
+  It can often be useful to execute a command, then both monitor and capture its
+  output as it's being produced. This is what
   <a href="http://linux.die.net/man/1/tee">
     <code>
       tee(1)
   is good for.
   <code>
     tee.io
-  is sort of like that for commands run on
+  is sort of like that for commands on
   <em>remote
   systems.
 
@@ -19,6 +19,16 @@
   It's like
   <code>tee(1)
   as a service.
+
+<h2>Usage
+
+<p>
+  Interaction with
+  <code>tee.io
+  is done through a simple API documented on
+  <a href="http://docs.teeio.apiary.io">apiary</a>.
+  There's also a reference
+  <a href=@{StaticR tee_io}>command-line client</a>.
 
 <h2>Motivation
 
@@ -29,7 +39,7 @@
   room.
 
 <p>
-  Typically, we would capture the
+  We would normally capture the
   <code>stdout
   and
   <code>stderr
@@ -44,110 +54,6 @@
 <p>
   To solve these problems, I built
   <code>tee.io</code>.
+  Maybe it'll be useful to you too.
 
 <!-- <img alt="demo" src=@{StaticR demo_gif}> -->
-
-<h2>Usage
-
-<p>
-  Interaction with
-  <code>tee.io
-  is done through a simple API. The following describes the API's endpoints and
-  their usage. There's also a reference
-  <a href=@{StaticR tee_io}>command-line client</a>.
-
-<h3>Start a command
-
-<p>
-  This endpoint is used to define a command and receive its token for use with
-  the rest of the API.
-
-<p>
-  Once created, the stream of command output can be viewed at
-  <code>/commands/:token</code>.
-
-<p>
-  <strong>Request:
-
-<pre .indent>
-  <code>
-    \POST /commands
-    \{
-    \  description: "...",
-    \  running: true
-    \}
-
-<p>
-  <strong>Response:
-
-<p>
-  <em>Note:
-  the response is different depending on the representation requested via the
-  <code>Accept
-  HTTP header.
-
-<pre .indent>
-  <code>
-    \Accept: application/json
-    \Status: 201
-    \Body:
-    \{
-    \  token: "2f5fdcf2-a903-42b6-1d1e-23df1d2a9c2b"
-    \}
-    \
-    \Accept: text/plain
-    \Status: 201
-    \Body:
-    \2f5fdcf2-a903-42b6-1d1e-23df1d2a9c2b
-    \
-    \Accept: text/html
-    \Status: 301
-    \Location: the URL where output can be viewed
-
-<h3>Generate output
-
-<p>
-  This endpoint is used to report output for the command.
-
-<p>
-  <em>Note:
-  each payload is appended to the stored history as-is. The means clients are
-  able to buffer the data as they see fit, but are in also charge of their own
-  trailing newlines if sending data line-buffered.
-
-<p>
-  <strong>Request:
-
-<pre .indent>
-  <code>
-    \POST /commands/:token/output
-    \{ content: "example output\n" }
-
-<p>
-  <strong>Response:
-  HTTP status
-  <code>201
-  if successful
-
-<h3>Stop the command
-
-<p>
-  This endpoint is used to notify
-  <code>tee.io
-  when the command is no longer producing new output. This fact is used to move
-  the output data to more appropriate storage once it's no longer being actively
-  generated.
-
-<p>
-  <strong>Request:
-
-<pre .indent>
-  <code>
-    \PATCH /commands/:token
-    \{ running: false }
-
-<p>
-  <strong>Response:
-  HTTP status
-  <code>200
-  if successful
