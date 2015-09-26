@@ -82,7 +82,7 @@ get404 token = do
 set :: (StorageKey k, ToJSON a) => k -> a -> Storage ()
 set token = void . runRedis . Redis.set (toKey token) . toValue
 
--- | Pass-through to @delete@
+-- | Pass-through to @del@
 del :: (StorageKey k) => k -> Storage ()
 del token = void $ runRedis $ Redis.del [toKey token]
 
