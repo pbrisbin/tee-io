@@ -30,7 +30,7 @@ import Yesod.Core.Handler (RedirectUrl)
 withApp :: SpecWith App -> Spec
 withApp = before $ do
     settings <- loadAppSettings
-        ["config/test-settings.yml", "config/settings.yml"]
+        ["config/settings.yml"]
         []
         ignoreEnv
     makeFoundation settings

@@ -17,10 +17,3 @@ redis-url:      "_env:REDIS_URL:redis://localhost:6379"
 # reload-templates: false
 # mutable-static: false
 # skip-combining: false
-
-database:
-  database: "_env:SQLITE_DATABASE:tee-io.sqlite3"
-  poolsize: "_env:SQLITE_POOLSIZE:10"
-
-copyright: Insert copyright statement here
-#analytics: UA-YOURCODE
