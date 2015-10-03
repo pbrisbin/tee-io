@@ -1,0 +1,46 @@
+PATH
+  remote: .
+  specs:
+    tee-io (0.0.1)
+      curb (~> 0.8.8)
+      posix-spawn (~> 0.3.11)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.3.8)
+    crack (0.4.2)
+      safe_yaml (~> 1.0.0)
+    curb (0.8.8)
+    diff-lcs (1.2.5)
+    posix-spawn (0.3.11)
+    rake (10.4.2)
+    rspec (3.3.0)
+      rspec-core (~> 3.3.0)
+      rspec-expectations (~> 3.3.0)
+      rspec-mocks (~> 3.3.0)
+    rspec-core (3.3.2)
+      rspec-support (~> 3.3.0)
+    rspec-expectations (3.3.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.3.0)
+    rspec-mocks (3.3.2)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.3.0)
+    rspec-support (3.3.0)
+    safe_yaml (1.0.4)
+    webmock (1.21.0)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rake
+  rspec
+  tee-io!
+  webmock
+
+BUNDLED WITH
+   1.10.6
