@@ -87,6 +87,7 @@ library
                  , transformers
                  , yesod-websockets
                  , parsec
+                 , load-env
 
 executable         tee-io
     if flag(library-only)
