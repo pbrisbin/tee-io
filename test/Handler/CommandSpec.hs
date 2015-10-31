@@ -24,6 +24,7 @@ spec = withApp $ do
                 command <- runStorage' $ get404 token
                 commandRunning command `shouldBe` True
                 commandDescription command `shouldBe` Nothing
+                commandArchived command `shouldBe` False
 
         it "creates a command with a description" $ do
             postJSON CommandsR $ object ["description" .= ("test command" :: Text)]
@@ -40,6 +41,7 @@ spec = withApp $ do
             runStorage' $ set token $ Command
                 { commandRunning = True
                 , commandDescription = Just "a description"
+                , commandArchived = False
                 , commandCreatedAt = now
                 , commandUpdatedAt = now
                 }
@@ -52,12 +54,20 @@ spec = withApp $ do
             commandUpdatedAt updated `shouldSatisfy` (not . (== now))
 
     describe "DELETE /commands/token" $ do
+        it "404's for non-existent commands" $ do
+            token <- newToken
+
+            delete $ CommandR token
+
+            statusIs 404
+
         it "deletes the command's data" $ do
             now <- liftIO $ getCurrentTime
             token <- newToken
             runStorage' $ set token $ Command
                 { commandRunning = True
                 , commandDescription = Just "a description"
+                , commandArchived = False
                 , commandCreatedAt = now
                 , commandUpdatedAt = now
                 }

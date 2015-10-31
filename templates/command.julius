@@ -28,5 +28,7 @@ Output.prototype.connect = function() {
 document.addEventListener("DOMContentLoaded", function() {
   var elem = document.getElementById("output")
 
-  new Output(elem).connect();
+  if (elem) {
+    new Output(elem).connect();
+  };
 });

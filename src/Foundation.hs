@@ -5,6 +5,7 @@ import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
+import qualified Aws as Aws
 import qualified Database.Redis as Redis
 import qualified Yesod.Core.Unsafe as Unsafe
 
@@ -18,6 +19,7 @@ data App = App
     , appHttpManager :: Manager
     , appLogger      :: Logger
     , appRedis       :: Redis.Connection
+    , appAWSConfiguration :: Aws.Configuration
     }
 
 instance HasHttpManager App where

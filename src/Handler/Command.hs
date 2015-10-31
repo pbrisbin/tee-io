@@ -8,6 +8,8 @@ module Handler.Command
     where
 
 import Import hiding (Request)
+import Archive
+import Data.Conduit.Binary (sinkLbs)
 
 data Request = Request
     { reqRunning :: Maybe Bool
@@ -28,6 +30,7 @@ postCommandsR = do
     unsafeRunStorage $ set token $ Command
         { commandRunning = fromMaybe True $ reqRunning req
         , commandDescription = reqDescription req
+        , commandArchived = False
         , commandCreatedAt = now
         , commandUpdatedAt = now
         }
@@ -56,6 +59,9 @@ patchCommandR token = do
 getCommandR :: Token -> Handler TypedContent
 getCommandR token = do
     command <- unsafeRunStorage $ get404 token
+    mcontent <- if commandArchived command
+        then Just <$> getOutput token sinkLbs
+        else return Nothing
 
     selectRep $ do
         provideRep $ return $ toJSON command
@@ -64,9 +70,14 @@ getCommandR token = do
             $(widgetFile "command")
 
 deleteCommandR :: Token -> Handler ()
-deleteCommandR token = unsafeRunStorage $ do
-    del token
-    del $ History token
+deleteCommandR token = do
+    archived <- unsafeRunStorage $ do
+        command <- get404 token
+        del token
+        del $ History token
+        return $ commandArchived command
+
+    when archived $ deleteOutput token
 
 -- Deprecated. Originally wrote the API to accept PUT with PATCH semantics. We
 -- still except it for older clients.
