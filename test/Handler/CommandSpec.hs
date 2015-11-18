@@ -21,7 +21,7 @@ spec = withApp $ do
             postJSON CommandsR $ object []
 
             withJSONResponse $ \(Response token) -> do
-                command <- runStorage' $ get404 token
+                command <- getCommand token
                 commandRunning command `shouldBe` True
                 commandDescription command `shouldBe` Nothing
 
@@ -29,7 +29,7 @@ spec = withApp $ do
             postJSON CommandsR $ object ["description" .= ("test command" :: Text)]
 
             withJSONResponse $ \(Response token) -> do
-                command <- runStorage' $ get404 token
+                command <- getCommand token
                 commandRunning command `shouldBe` True
                 commandDescription command `shouldBe` Just "test command"
 
@@ -46,7 +46,7 @@ spec = withApp $ do
 
             patchJSON (CommandR token) $ object ["running" .= False]
 
-            updated <- runStorage' $ get404 token
+            updated <- getCommand token
             commandRunning updated `shouldBe` False
             commandDescription updated `shouldBe` Just "a description"
             commandUpdatedAt updated `shouldSatisfy` (not . (== now))

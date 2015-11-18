@@ -1,6 +1,7 @@
 module Foundation where
 
 import Import.NoFoundation
+import Storage
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
 import Yesod.Default.Util   (addStaticContentExternal)
@@ -101,6 +102,22 @@ instance RenderMessage App FormMessage where
 
 unsafeHandler :: App -> Handler a -> IO a
 unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger
+
+unsafeRunStorage :: Storage a -> Handler a
+unsafeRunStorage f = do
+    conn <- appRedis <$> getYesod
+    result <- runStorage conn f
+
+    either (err . show) return result
+
+  where
+    err msg = $(logError) (pack msg) >> error msg
+
+get404 :: FromJSON a => Token -> Handler a
+get404 k = do
+    mval <- unsafeRunStorage $ get k
+
+    maybe notFound return mval
 
 -- Note: Some functionality previously present in the scaffolding has been
 -- moved to documentation in the Wiki. Following are some hopefully helpful

@@ -21,15 +21,14 @@ postOutputR :: Token -> Handler ()
 postOutputR token = do
     now <- liftIO getCurrentTime
     req <- requireJsonBody
+    void $ (get404 token :: Handler Command)
 
     let output = Output
             { outputContent = reqContent req
             , outputCreatedAt = now
             }
 
-    unsafeRunStorage $ do
-        void $ (get404 token :: Storage Command)
-        void $ rpush (History token) output
+    unsafeRunStorage $ void $ rpush (History token) output
 
 getOutputR :: Token -> Handler ()
 getOutputR token = webSockets $ outputStream token 0
@@ -45,7 +44,7 @@ outputStream token start = do
         $(logDebug) $ "received acknowledgement " <> ack
 
     now <- liftIO $ getCurrentTime
-    command <- lift $ unsafeRunStorage $ get404 token
+    command <- lift $ get404 token
 
     if not $ stale now command
         then outputStream token $ start + genericLength outputs

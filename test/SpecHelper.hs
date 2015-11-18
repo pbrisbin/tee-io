@@ -10,7 +10,7 @@ import Foundation            as X
 import Network.HTTP.Types    as X
 import Network.Wai.Test      as X (SResponse(..))
 import Model                 as X
-import Storage               as X
+import Storage               as X hiding (get)
 import Test.Hspec            as X hiding
     ( expectationFailure
     , shouldBe
@@ -23,9 +23,9 @@ import Test.Hspec.Expectations.Lifted as X
 import Yesod.Default.Config2 (ignoreEnv, loadAppSettings)
 import Yesod.Test            as X
 
-import Application (handler)
-
 import Yesod.Core.Handler (RedirectUrl)
+
+import qualified Storage as Storage
 
 withApp :: SpecWith App -> Spec
 withApp = before $ do
@@ -35,8 +35,20 @@ withApp = before $ do
         ignoreEnv
     makeFoundation settings
 
-runStorage' :: MonadIO m => Storage a -> m a
-runStorage' = liftIO . handler . unsafeRunStorage
+runStorage' :: Storage a -> YesodExample App a
+runStorage' f = do
+    conn <- appRedis <$> getTestYesod
+    result <- liftIO $ runStorage conn f
+
+    either err return result
+
+  where
+    err x = error $ "storage command failed: " <> show x
+
+getCommand :: Token -> YesodExample App Command
+getCommand k = do
+    mval <- runStorage' $ Storage.get k
+    maybe (error "command not found") return mval
 
 delete :: RedirectUrl App url => url -> YesodExample App ()
 delete url = request $ do

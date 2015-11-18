@@ -2,7 +2,7 @@ module Import.NoFoundation
     ( module Import
     ) where
 
-import ClassyPrelude.Yesod   as Import hiding (get404)
+import ClassyPrelude.Yesod   as Import hiding (get, get404)
 import Data.Aeson            as Import
 import Model                 as Import
 import Settings              as Import

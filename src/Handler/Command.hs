@@ -40,10 +40,9 @@ patchCommandR :: Token -> Handler ()
 patchCommandR token = do
     now <- liftIO getCurrentTime
     req <- requireJsonBody
+    command <- get404 token
 
     unsafeRunStorage $ do
-        command <- get404 token
-
         let running = fromMaybe (commandRunning command) $ reqRunning req
             description = maybe (commandDescription command) Just $ reqDescription req
 
@@ -55,7 +54,7 @@ patchCommandR token = do
 
 getCommandR :: Token -> Handler TypedContent
 getCommandR token = do
-    command <- unsafeRunStorage $ get404 token
+    command <- get404 token
 
     selectRep $ do
         provideRep $ return $ toJSON command

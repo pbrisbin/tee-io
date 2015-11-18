@@ -16,3 +16,4 @@
 :set -XTupleSections
 :set -XTypeFamilies
 :set -XViewPatterns
+:set -XRankNTypes

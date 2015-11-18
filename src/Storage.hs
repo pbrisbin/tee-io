@@ -2,12 +2,11 @@ module Storage
     ( Storage
     , StorageError(..)
     , runStorage
-    , unsafeRunStorage
     , throwError
     , StorageKey(..)
     , HistoryToken(..)
     , newToken
-    , get404
+    , get
     , set
     , del
     , lget
@@ -15,9 +14,8 @@ module Storage
     ) where
 
 import Model
-import Foundation
 
-import ClassyPrelude.Yesod hiding (get404)
+import ClassyPrelude
 import Control.Monad.Trans.Except
 import Data.Aeson hiding (Result)
 import Data.UUID
@@ -42,19 +40,12 @@ instance Show StorageError where
     show (GenericError err) = "Error: " <> err
 
 -- | @'ExceptT'@ fixed at @'StorageError'@ and @'Handler'@
-type Storage = ExceptT StorageError Handler
+type Storage a = forall m.
+    MonadIO m => ExceptT StorageError (ReaderT Redis.Connection m) a
 
 -- | Run a @'Storage'@ computation for an @'Either'@ result
-runStorage :: Storage a -> Handler (Either StorageError a)
-runStorage = runExceptT
-
--- | Run a @'Storage@' computation in an unsafe way
---
--- Errors are logged and raised with @'error'@
-unsafeRunStorage :: Storage a -> Handler a
-unsafeRunStorage = either (err . show) return <=< runStorage
-  where
-    err msg = $(logError) (pack msg) >> error msg
+runStorage :: MonadIO m => Redis.Connection -> Storage a -> m (Either StorageError a)
+runStorage c f = runReaderT (runExceptT f) c
 
 -- | Throw a generic @'StorageError'@
 throwError :: String -> Storage a
@@ -71,12 +62,12 @@ newtype HistoryToken = History Token deriving (Show, FromJSON, ToJSON)
 instance StorageKey HistoryToken where
     toKey (History t) = toKey t <> ".history"
 
--- | A version of @get@ that returns @'notFound'@ when missing
-get404 :: (StorageKey k, FromJSON a) => k -> Storage a
-get404 token = do
-    value <- runRedis $ Redis.get $ toKey token
+-- | Pass-through to @get@
+get :: (StorageKey k, FromJSON a) => k -> Storage (Maybe a)
+get token = do
+    mval <- runRedis $ Redis.get $ toKey token
 
-    maybe (lift notFound) parseValue value
+    maybe (return Nothing) (fmap Just . parseValue) mval
 
 -- | Pass-through to @set@
 set :: (StorageKey k, ToJSON a) => k -> a -> Storage ()
@@ -94,7 +85,7 @@ lget k start = do
 
     mapM parseValue bs
 
--- | A verison of @rpush@ that takes a single element
+-- | A version of @rpush@ that takes a single element
 rpush :: (StorageKey k, ToJSON a) => k -> a -> Storage ()
 rpush k v = void $ runRedis $ Redis.rpush (toKey k) $ [toValue v]
 
@@ -110,7 +101,7 @@ parseValue v = either (throwE . JSONParseError v) return
 
 runRedis :: Redis.Redis (Either Redis.Reply a) -> Storage a
 runRedis a = do
-    conn <- lift $ appRedis <$> getYesod
+    conn <- ask
     result <- liftIO $ Redis.runRedis conn a
 
     either (throwE . RedisError) return result
