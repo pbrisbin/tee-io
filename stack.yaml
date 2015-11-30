@@ -1,10 +1,15 @@
 flags:
   tee-io:
-    library-only: false
     dev: false
+    library-only: false
 packages:
 - '.'
 extra-deps:
+- amazonka-1.3.6
+- amazonka-core-1.3.6
+- amazonka-s3-1.3.6
+- heroku-0.1.2.3
+- heroku-persistent-0.1.0
 - hspec-expectations-lifted-0.5.0
-- load-env-0.1.1
+- retry-0.7.0.1
 resolver: lts-3.5

@@ -1,60 +1,8 @@
 module Model where
 
+import Token
 import ClassyPrelude.Yesod
-import Data.Aeson
-import Data.UUID
-import System.Random
+import Database.Persist.Quasi
 
-newtype Token = Token { tokenUUID :: UUID }
-    deriving (Eq, Random, Read, Show)
-
-instance ToJSON Token where
-    toJSON = toJSON . toText . tokenUUID
-
-instance FromJSON Token where
-    parseJSON = maybe mzero (return . Token) . fromText <=< parseJSON
-
-tokenText :: Token -> Text
-tokenText = toText . tokenUUID
-
-instance PathPiece Token where
-    toPathPiece = toText . tokenUUID
-    fromPathPiece = fmap Token . fromText
-
-data Command = Command
-    { commandRunning :: Bool
-    , commandDescription :: Maybe Text
-    , commandCreatedAt :: UTCTime
-    , commandUpdatedAt :: UTCTime
-    }
-
-instance ToJSON Command where
-    toJSON Command{..} = object
-        [ "running" .= commandRunning
-        , "description" .= commandDescription
-        , "created_at" .= commandCreatedAt
-        , "updated_at" .= commandUpdatedAt
-        ]
-
-instance FromJSON Command where
-    parseJSON = withObject "Command" $ \o -> Command
-        <$> o .: "running"
-        <*> o .: "description"
-        <*> o .: "created_at"
-        <*> o .: "updated_at"
-
-data Output = Output
-    { outputContent :: Text
-    , outputCreatedAt :: UTCTime
-    }
-
-instance ToJSON Output where
-    toJSON Output{..} = object
-        [ "content" .= outputContent
-        , "created_at" .= outputCreatedAt
-        ]
-
-instance FromJSON Output where
-    parseJSON = withObject "Output" $ \o -> Output
-        <$> o .: "content"
-        <*> o .: "created_at"
+share [mkPersist sqlSettings, mkMigrate "migrateAll"]
+    $(persistFileWith lowerCaseSettings "config/models")

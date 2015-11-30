@@ -17,15 +17,15 @@ library
                      Foundation
                      Import
                      Import.NoFoundation
+                     Token
                      Model
-                     Storage
                      Settings
                      Settings.StaticFiles
                      Handler.Common
                      Handler.Home
                      Handler.Command
                      Handler.Output
-                     Database.Redis.URI
+                     Archive
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -50,7 +50,6 @@ library
                 ViewPatterns
                 TupleSections
                 RecordWildCards
-                RankNTypes
 
     build-depends: base                          >= 4          && < 5
                  , yesod                         >= 1.4.1      && < 1.5
@@ -84,11 +83,18 @@ library
                  , time
                  , uuid
                  , random
-                 , hedis
                  , transformers
                  , yesod-websockets
-                 , parsec
-                 , load-env
+                 , persistent
+                 , persistent-postgresql
+                 , heroku-persistent
+                 , websockets
+                 , amazonka >= 1.3.5
+                 , amazonka-s3
+                 , lens
+                 , http-types
+                 , conduit-extra
+
 
 executable         tee-io
     if flag(library-only)
@@ -123,7 +129,6 @@ test-suite test
                 ViewPatterns
                 TupleSections
                 RecordWildCards
-                RankNTypes
 
     build-depends: base
                  , tee-io
@@ -131,9 +136,10 @@ test-suite test
                  , hspec-expectations-lifted
                  , aeson
                  , classy-prelude
-                 , hedis
                  , http-types
                  , wai-extra
                  , yesod
                  , yesod-core
                  , yesod-test
+                 , yesod-persistent
+                 , persistent

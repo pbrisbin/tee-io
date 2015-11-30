@@ -1,12 +1,11 @@
-User
-    ident Text
-    password Text Maybe
-    UniqueUser ident
-    deriving Typeable
-Email
-    email Text
-    user UserId Maybe
-    verkey Text Maybe
-    UniqueEmail email
+Command
+  token Token
+  running Bool
+  description Text Maybe
+  createdAt UTCTime
+  UniqueCommand token
 
- -- By default this file is used in Model.hs (which is imported by Foundation.hs)
+Output
+  command CommandId
+  content Text
+  createdAt UTCTime

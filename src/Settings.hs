@@ -11,7 +11,9 @@ import Data.Aeson                  (Result (..), fromJSON, withObject, (.!=),
                                     (.:?))
 import Data.FileEmbed              (embedFile)
 import Data.Yaml                   (decodeEither')
+import Database.Persist.Postgresql (PostgresConf)
 import Language.Haskell.TH.Syntax  (Exp, Name, Q)
+import Network.AWS.S3              (BucketName(..))
 import Network.Wai.Handler.Warp    (HostPreference)
 import Yesod.Default.Config2       (applyEnvValue, configSettingsYml)
 import Yesod.Default.Util          (WidgetFileSettings, widgetFileNoReload,
@@ -23,6 +25,8 @@ import Yesod.Default.Util          (WidgetFileSettings, widgetFileNoReload,
 data AppSettings = AppSettings
     { appStaticDir              :: String
     -- ^ Directory from which to serve static files.
+    , appDatabaseConf           :: PostgresConf
+    -- ^ Configuration settings for accessing the database.
     , appRoot                   :: Text
     -- ^ Base for all generated URLs.
     , appHost                   :: HostPreference
@@ -32,6 +36,10 @@ data AppSettings = AppSettings
     , appIpFromHeader           :: Bool
     -- ^ Get the IP address from the header when logging. Useful when sitting
     -- behind a reverse proxy.
+    , appCommandTimeout         :: Int
+    -- ^ How long to consider a command no longer running in seconds
+    , appS3Bucket               :: BucketName
+    -- ^ S3 bucket to archive commands to
 
     , appDetailedRequestLogging :: Bool
     -- ^ Use detailed request logging system
@@ -43,7 +51,8 @@ data AppSettings = AppSettings
     -- ^ Assume that files in the static dir may change after compilation
     , appSkipCombining          :: Bool
     -- ^ Perform no stylesheet/script combining
-    , appRedisURL               :: Text
+    , appDatabaseUrl            :: Bool
+    -- ^ Parse DB connection info from DATABASE_URL?
     }
 
 instance FromJSON AppSettings where
@@ -55,18 +64,20 @@ instance FromJSON AppSettings where
                 False
 #endif
         appStaticDir              <- o .: "static-dir"
+        appDatabaseConf           <- o .: "database"
         appRoot                   <- o .: "approot"
         appHost                   <- fromString <$> o .: "host"
         appPort                   <- o .: "port"
         appIpFromHeader           <- o .: "ip-from-header"
-        appRedisURL               <- o .: "redis-url"
+        appCommandTimeout         <- o .: "command-timeout"
+        appS3Bucket               <- BucketName <$> o .: "s3-bucket"
 
         appDetailedRequestLogging <- o .:? "detailed-logging" .!= defaultDev
         appShouldLogAll           <- o .:? "should-log-all"   .!= defaultDev
         appReloadTemplates        <- o .:? "reload-templates" .!= defaultDev
         appMutableStatic          <- o .:? "mutable-static"   .!= defaultDev
         appSkipCombining          <- o .:? "skip-combining"   .!= defaultDev
-
+        appDatabaseUrl            <- o .:? "database-url"     .!= (not defaultDev)
         return AppSettings {..}
 
 -- | Settings for 'widgetFile', such as which template languages to support and

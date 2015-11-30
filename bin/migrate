@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+#
+# Migrate any tee-io data in production Redis as an archived command with
+# metadata in PostgreSQL and output content in S3.
+#
+###
+require "aws-sdk"
+require "dotenv"
+require "json"
+require "redis"
+
+# PG and AWS vars to migrate data to production. Use .env for development.
+Dotenv.load(".env.production")
+
+s3 = Aws::S3::Client.new(region: ENV["AWS_DEFAULT_REGION"])
+redis = Redis.new(url: ENV["REDIS_URL"])
+redis.keys("*.history").each do |token|
+  key = token.chomp(".history")
+  len = redis.llen(token)
+  output = redis.lrange(token, 0, len).map do |json|
+    JSON.parse(json)["content"]
+  end
+
+  puts "MIGRATE #{token} #{len} line(s)"
+  puts "  --> PUT S3"
+  s3.put_object(bucket: ENV["S3_BUCKET"], key: key, body: output.join(""))
+
+  command = JSON.parse(redis.get(key))
+  description = command["description"] ? "'#{command["description"]}'" : "NULL"
+
+  puts "  --> INSERT into command"
+  IO.popen("psql --no-psqlrc", "w") do |io|
+    io.write(<<-EOSQL)
+      INSERT into command (token, running, description, created_at) values
+        ('#{key}', FALSE, #{description}, TIMESTAMP '#{command["created_at"]}');
+    EOSQL
+
+    io.close
+  end
+end

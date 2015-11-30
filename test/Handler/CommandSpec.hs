@@ -21,7 +21,7 @@ spec = withApp $ do
             postJSON CommandsR $ object []
 
             withJSONResponse $ \(Response token) -> do
-                command <- getCommand token
+                Entity _ command <- runDB $ getBy404 $ UniqueCommand token
                 commandRunning command `shouldBe` True
                 commandDescription command `shouldBe` Nothing
 
@@ -29,37 +29,19 @@ spec = withApp $ do
             postJSON CommandsR $ object ["description" .= ("test command" :: Text)]
 
             withJSONResponse $ \(Response token) -> do
-                command <- getCommand token
+                Entity _ command <- runDB $ getBy404 $ UniqueCommand token
                 commandRunning command `shouldBe` True
                 commandDescription command `shouldBe` Just "test command"
-
-    describe "PATCH /commands/token" $ do
-        it "sets commandUpdatedAt and preserves existing fields" $ do
-            now <- liftIO $ getCurrentTime
-            token <- newToken
-            runStorage' $ set token $ Command
-                { commandRunning = True
-                , commandDescription = Just "a description"
-                , commandCreatedAt = now
-                , commandUpdatedAt = now
-                }
-
-            patchJSON (CommandR token) $ object ["running" .= False]
-
-            updated <- getCommand token
-            commandRunning updated `shouldBe` False
-            commandDescription updated `shouldBe` Just "a description"
-            commandUpdatedAt updated `shouldSatisfy` (not . (== now))
 
     describe "DELETE /commands/token" $ do
         it "deletes the command's data" $ do
             now <- liftIO $ getCurrentTime
             token <- newToken
-            runStorage' $ set token $ Command
-                { commandRunning = True
+            void $ runDB $ insert $ Command
+                { commandToken = token
+                , commandRunning = True
                 , commandDescription = Just "a description"
                 , commandCreatedAt = now
-                , commandUpdatedAt = now
                 }
 
             delete $ CommandR token

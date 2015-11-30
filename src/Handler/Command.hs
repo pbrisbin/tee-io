@@ -7,16 +7,17 @@ module Handler.Command
     )
     where
 
-import Import hiding (Request)
+import Import
+import Archive
 
-data Request = Request
-    { reqRunning :: Maybe Bool
+data CommandRequest = CommandRequest
+    { reqRunning :: Bool
     , reqDescription :: Maybe Text
     }
 
-instance FromJSON Request where
-    parseJSON = withObject "Command.Request" $ \o -> Request
-        <$> o .:? "running"
+instance FromJSON CommandRequest where
+    parseJSON = withObject "Command.CommandRequest" $ \o -> CommandRequest
+        <$> o .:? "running" .!= True
         <*> o .:? "description"
 
 postCommandsR :: Handler TypedContent
@@ -25,49 +26,40 @@ postCommandsR = do
     req <- requireJsonBody
     token <- newToken
 
-    unsafeRunStorage $ set token $ Command
-        { commandRunning = fromMaybe True $ reqRunning req
+    void $ runDB $ insert $ Command
+        { commandToken = token
+        , commandRunning = reqRunning req
         , commandDescription = reqDescription req
         , commandCreatedAt = now
-        , commandUpdatedAt = now
         }
 
     selectRep $ do
         provideRep $ return $ tokenText token
         provideRep $ return $ object ["token" .= tokenText token]
 
-patchCommandR :: Token -> Handler ()
-patchCommandR token = do
-    now <- liftIO getCurrentTime
-    req <- requireJsonBody
-    command <- get404 token
-
-    unsafeRunStorage $ do
-        let running = fromMaybe (commandRunning command) $ reqRunning req
-            description = maybe (commandDescription command) Just $ reqDescription req
-
-        set token $ command
-            { commandRunning = running
-            , commandDescription = description
-            , commandUpdatedAt = now
-            }
-
-getCommandR :: Token -> Handler TypedContent
+getCommandR :: Token -> Handler Html
 getCommandR token = do
-    command <- get404 token
+    Entity _ command <- runDB $ getBy404 $ UniqueCommand token
 
-    selectRep $ do
-        provideRep $ return $ toJSON command
-        provideRep $ defaultLayout $ do
-            setTitle "tee.io - Command"
-            $(widgetFile "command")
+    mcontent <-
+        if not $ commandRunning command
+            then Just <$> archivedOutput token
+            else return Nothing
+
+    defaultLayout $ do
+        setTitle "tee.io - Command"
+        $(widgetFile "command")
 
 deleteCommandR :: Token -> Handler ()
-deleteCommandR token = unsafeRunStorage $ do
-    del token
-    del $ History token
+deleteCommandR token = void $ runDB $ deleteBy $ UniqueCommand token
+
+-- Deprecated. Originally we required callers to update commands to
+-- running:false so we could take steps to archive content to S3. We'll instead
+-- implement timeout semantics.
+patchCommandR :: Token -> Handler ()
+patchCommandR _ = return ()
 
 -- Deprecated. Originally wrote the API to accept PUT with PATCH semantics. We
 -- still except it for older clients.
 putCommandR :: Token -> Handler ()
-putCommandR = patchCommandR
+putCommandR _ = return ()

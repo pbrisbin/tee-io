@@ -4,9 +4,7 @@ module Handler.Output
     ) where
 
 import Import hiding (Request)
-
-import Data.List (genericLength)
-import Data.Time (diffUTCTime)
+import Network.WebSockets (ConnectionException)
 import Yesod.WebSockets
 
 data Request = Request
@@ -21,37 +19,41 @@ postOutputR :: Token -> Handler ()
 postOutputR token = do
     now <- liftIO getCurrentTime
     req <- requireJsonBody
-    void $ (get404 token :: Handler Command)
+    void $ runDB $ do
+        Entity commandId _ <- getBy404 $ UniqueCommand token
 
-    let output = Output
-            { outputContent = reqContent req
+        insert $ Output
+            { outputCommand = commandId
+            , outputContent = reqContent req
             , outputCreatedAt = now
             }
 
-    unsafeRunStorage $ void $ rpush (History token) output
-
 getOutputR :: Token -> Handler ()
-getOutputR token = webSockets $ outputStream token 0
+getOutputR token = do
+    Entity commandId _ <- runDB $ getBy404 $ UniqueCommand token
 
-outputStream :: Token -> Integer -> WebSocketsT Handler ()
-outputStream token start = do
-    outputs <- lift $ unsafeRunStorage $ lget (History token) start
+    webSockets $ outputStream commandId 0
 
-    forM_ outputs $ \output -> do
-        sendTextData $ outputContent output
+outputStream :: CommandId -> Int -> WebSocketsT Handler ()
+outputStream commandId start = catchingConnectionException $ do
+    outputs <- lift $ runDB $ selectList
+        [OutputCommand ==. commandId]
+        [Asc OutputCreatedAt, OffsetBy start]
 
-        ack <- receiveData -- ensure someone's listening
-        $(logDebug) $ "received acknowledgement " <> ack
+    sendTextDataAck ""
+    mapM_ (sendTextDataAck . outputContent . entityVal) outputs
 
-    now <- liftIO $ getCurrentTime
-    command <- lift $ get404 token
+    outputStream commandId (start + length outputs)
 
-    if not $ stale now command
-        then outputStream token $ start + genericLength outputs
-        else sendClose ("command no longer running" :: Text)
+catchingConnectionException :: WebSocketsT Handler () -> WebSocketsT Handler ()
+catchingConnectionException f = f `catch` \e -> do
+    $(logDebug) $ pack $ show (e :: ConnectionException)
 
-  where
-    -- command has been stopped for more than 10 minutes
-    stale :: UTCTime -> Command -> Bool
-    stale t Command{..} = not commandRunning &&
-        diffUTCTime t commandUpdatedAt > 10 * 60
+sendTextDataAck :: MonadIO m => Text -> WebSocketsT m ()
+sendTextDataAck msg = do
+    sendTextData msg
+    void $ receiveTextData
+
+-- Just fixing the type to Text
+receiveTextData :: MonadIO m => WebSocketsT m Text
+receiveTextData = receiveData

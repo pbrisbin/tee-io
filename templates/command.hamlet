@@ -10,4 +10,7 @@
     no description
 
 <pre>
-  <code #output data-stream-url=@{OutputR token}>
+  $maybe content <- mcontent
+    <code>#{decodeUtf8 content}
+  $nothing
+    <code #output data-stream-url=@{OutputR token}>

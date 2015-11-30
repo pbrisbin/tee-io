@@ -1,12 +1,13 @@
 # Values formatted like "_env:ENV_VAR_NAME:default_value" can be overridden by the specified environment variable.
 # See https://github.com/yesodweb/yesod/wiki/Configuration#overriding-configuration-values-with-environment-variables
 
-static-dir:     "_env:STATIC_DIR:static"
-host:           "_env:HOST:*4" # any IPv4 host
-port:           "_env:PORT:3000"
-approot:        "_env:APPROOT:http://localhost:3000"
-ip-from-header: "_env:IP_FROM_HEADER:false"
-redis-url:      "_env:REDIS_URL:redis://localhost:6379"
+static-dir:      "_env:STATIC_DIR:static"
+host:            "_env:HOST:*4" # any IPv4 host
+port:            "_env:PORT:3000"
+approot:         "_env:APPROOT:http://localhost:3000"
+ip-from-header:  "_env:IP_FROM_HEADER:false"
+command-timeout: "_env:COMMAND_TIMEOUT:300"
+s3-bucket:       "_env:S3_BUCKET:tee.io.development"
 
 # Optional values with the following production defaults.
 # In development, they default to the inverse.
@@ -17,3 +18,13 @@ redis-url:      "_env:REDIS_URL:redis://localhost:6379"
 # reload-templates: false
 # mutable-static: false
 # skip-combining: false
+#
+# database-url: true
+
+database:
+  user:     "_env:PGUSER:teeio"
+  password: "_env:PGPASS:teeio"
+  host:     "_env:PGHOST:localhost"
+  port:     "_env:PGPORT:5432"
+  database: "_env:PGDATABASE:teeio"
+  poolsize: "_env:PGPOOLSIZE:10"

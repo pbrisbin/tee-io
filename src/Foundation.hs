@@ -1,14 +1,14 @@
 module Foundation where
 
 import Import.NoFoundation
-import Storage
+import Database.Persist.Sql (ConnectionPool, runSqlPool)
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
-import qualified Database.Redis as Redis
-import qualified Yesod.Core.Unsafe as Unsafe
 
+import qualified Network.AWS as AWS
+import qualified Yesod.Core.Unsafe as Unsafe
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
@@ -16,9 +16,10 @@ import qualified Yesod.Core.Unsafe as Unsafe
 data App = App
     { appSettings    :: AppSettings
     , appStatic      :: Static -- ^ Settings for static file serving.
+    , appConnPool    :: ConnectionPool -- ^ Database connection pool.
     , appHttpManager :: Manager
     , appLogger      :: Logger
-    , appRedis       :: Redis.Connection
+    , appAWSEnv      :: AWS.Env
     }
 
 instance HasHttpManager App where
@@ -94,30 +95,21 @@ instance Yesod App where
 
     makeLogger = return . appLogger
 
+instance YesodPersist App where
+    type YesodPersistBackend App = SqlBackend
+    runDB action = do
+        master <- getYesod
+        runSqlPool action $ appConnPool master
+instance YesodPersistRunner App where
+    getDBRunner = defaultGetDBRunner appConnPool
+
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
 
-
 unsafeHandler :: App -> Handler a -> IO a
 unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger
-
-unsafeRunStorage :: Storage a -> Handler a
-unsafeRunStorage f = do
-    conn <- appRedis <$> getYesod
-    result <- runStorage conn f
-
-    either (err . show) return result
-
-  where
-    err msg = $(logError) (pack msg) >> error msg
-
-get404 :: FromJSON a => Token -> Handler a
-get404 k = do
-    mval <- unsafeRunStorage $ get k
-
-    maybe notFound return mval
 
 -- Note: Some functionality previously present in the scaffolding has been
 -- moved to documentation in the Wiki. Following are some hopefully helpful
