@@ -17,11 +17,16 @@ ENV PATH /root/.cabal/bin:/opt/cabal/1.22/bin:/opt/ghc/7.10.2/bin:/opt/happy/1.1
 RUN mkdir -p /app/user
 WORKDIR /app/user
 
-# Install dependencies in their own layer to speed up builds
-RUN wget -O /app/user/cabal.config https://www.stackage.org/lts-3.5/cabal.config
-RUN cabal update
-RUN cabal install \
-  classy-prelude-yesod hedis \
+# Use lts-3.5 with a few manual allowances for newer versions of amazonka.
+RUN wget -O /app/user/cabal.config https://www.stackage.org/lts-3.5/cabal.config && \
+  sed -i 's/^\( *amazonka\) ==0.3.6,$/\1 ==1.3.6,/' /app/user/cabal.config && \
+  sed -i 's/^\( *amazonka-core\) ==0.3.6,$/\1 ==1.3.6,/' /app/user/cabal.config && \
+  sed -i 's/^\( *amazonka-s3\) ==0.3.6,$/\1 ==1.3.6,/' /app/user/cabal.config && \
+  sed -i 's/^\( *retry\) ==0.6,$/\1 ==0.7.0.1,/' /app/user/cabal.config
+
+# Install dependencies in their own layer to speed up builds.
+RUN cabal update && cabal install \
+  amazonka-s3 classy-prelude-yesod \
   yesod yesod-websockets uuid
 
 # In case we missed something above
