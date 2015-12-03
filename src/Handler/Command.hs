@@ -52,7 +52,16 @@ getCommandR token = do
         $(widgetFile "command")
 
 deleteCommandR :: Token -> Handler ()
-deleteCommandR token = void $ runDB $ deleteBy $ UniqueCommand token
+deleteCommandR token = do
+    wasRunning <- runDB $ do
+        Entity commandId command <- getBy404 $ UniqueCommand token
+
+        deleteWhere [OutputCommand ==. commandId]
+        delete commandId
+
+        return $ commandRunning command
+
+    unless wasRunning $ deleteArchivedOutput token
 
 -- Deprecated. Originally we required callers to update commands to
 -- running:false so we could take steps to archive content to S3. We'll instead

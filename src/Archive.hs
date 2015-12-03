@@ -1,5 +1,6 @@
 module Archive
     ( archivedOutput
+    , deleteArchivedOutput
     ) where
 
 import Import
@@ -22,3 +23,13 @@ archivedOutput token = do
     runResourceT $ runAWS e $ do
         rs <- send $ getObject b k
         view gorsBody rs `sinkBody` sinkLbs
+
+deleteArchivedOutput :: Token -> Handler ()
+deleteArchivedOutput token = do
+    app <- getYesod
+
+    let e = appAWSEnv app
+        b = appS3Bucket $ appSettings app
+        k = ObjectKey $ tokenText token
+
+    void $ runResourceT $ runAWS e $ send $ deleteObject b k
