@@ -144,3 +144,4 @@ test-suite test
                  , yesod-test
                  , yesod-persistent
                  , persistent
+                 , uuid
