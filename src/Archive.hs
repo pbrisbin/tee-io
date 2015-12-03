@@ -19,6 +19,6 @@ archivedOutput token = do
         b = appS3Bucket $ appSettings app
         k = ObjectKey $ tokenText token
 
-    runResourceT . runAWS e $ do
+    runResourceT $ runAWS e $ do
         rs <- send $ getObject b k
         view gorsBody rs `sinkBody` sinkLbs
