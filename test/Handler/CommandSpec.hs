@@ -4,12 +4,16 @@ module Handler.CommandSpec
     ) where
 
 import SpecHelper
+import Data.UUID (fromText)
 
 data Response = Response Token
 
 instance FromJSON Response where
     parseJSON = withObject "Response" $ \o -> Response
-        <$> o .: "token"
+        <$> (parseToken =<< o .: "token")
+
+      where
+        parseToken = maybe mzero (return . Token) . fromText
 
 main :: IO ()
 main = hspec spec

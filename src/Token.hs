@@ -26,9 +26,6 @@ fromTextEither x = case fromText x of
 instance ToJSON Token where
     toJSON = toJSON . tokenText
 
-instance FromJSON Token where
-    parseJSON = maybe mzero (return . Token) . fromText <=< parseJSON
-
 instance PathPiece Token where
     toPathPiece = tokenText
     fromPathPiece = fmap Token . fromText
