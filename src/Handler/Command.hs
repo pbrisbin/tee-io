@@ -26,7 +26,7 @@ postCommandsR = do
     req <- requireJsonBody
     token <- newToken
 
-    void $ runDB $ insert $ Command
+    void $ runDB $ insert Command
         { commandToken = token
         , commandRunning = reqRunning req
         , commandDescription = reqDescription req

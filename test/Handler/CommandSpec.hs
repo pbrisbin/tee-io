@@ -33,11 +33,11 @@ spec = withApp $ do
                 commandRunning command `shouldBe` True
                 commandDescription command `shouldBe` Just "test command"
 
-    describe "DELETE /commands/token" $ do
+    describe "DELETE /commands/token" $
         it "deletes the command's data" $ do
-            now <- liftIO $ getCurrentTime
+            now <- liftIO getCurrentTime
             token <- newToken
-            void $ runDB $ insert $ Command
+            void $ runDB $ insert Command
                 { commandToken = token
                 , commandRunning = True
                 , commandDescription = Just "a description"

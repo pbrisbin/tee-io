@@ -9,7 +9,7 @@ main :: IO ()
 main = hspec spec
 
 spec :: Spec
-spec = withApp $ do
+spec = withApp $
     it "loads successfully" $ do
         get HomeR
         statusIs 200

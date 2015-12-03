@@ -22,7 +22,7 @@ postOutputR token = do
     void $ runDB $ do
         Entity commandId _ <- getBy404 $ UniqueCommand token
 
-        insert $ Output
+        insert Output
             { outputCommand = commandId
             , outputContent = reqContent req
             , outputCreatedAt = now
@@ -46,13 +46,13 @@ outputStream commandId start = catchingConnectionException $ do
     outputStream commandId (start + length outputs)
 
 catchingConnectionException :: WebSocketsT Handler () -> WebSocketsT Handler ()
-catchingConnectionException f = f `catch` \e -> do
+catchingConnectionException f = f `catch` \e ->
     $(logDebug) $ pack $ show (e :: ConnectionException)
 
 sendTextDataAck :: MonadIO m => Text -> WebSocketsT m ()
 sendTextDataAck msg = do
     sendTextData msg
-    void $ receiveTextData
+    void receiveTextData
 
 -- Just fixing the type to Text
 receiveTextData :: MonadIO m => WebSocketsT m Text

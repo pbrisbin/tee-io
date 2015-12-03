@@ -77,7 +77,7 @@ instance FromJSON AppSettings where
         appReloadTemplates        <- o .:? "reload-templates" .!= defaultDev
         appMutableStatic          <- o .:? "mutable-static"   .!= defaultDev
         appSkipCombining          <- o .:? "skip-combining"   .!= defaultDev
-        appDatabaseUrl            <- o .:? "database-url"     .!= (not defaultDev)
+        appDatabaseUrl            <- o .:? "database-url"     .!= not defaultDev
         return AppSettings {..}
 
 -- | Settings for 'widgetFile', such as which template languages to support and

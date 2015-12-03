@@ -13,7 +13,7 @@ newtype Token = Token { tokenUUID :: UUID }
     deriving (Eq, Random, Read, Show)
 
 newToken :: MonadIO m => m Token
-newToken = liftIO $ randomIO
+newToken = liftIO randomIO
 
 tokenText :: Token -> Text
 tokenText = toText . tokenUUID

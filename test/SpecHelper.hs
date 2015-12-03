@@ -53,24 +53,17 @@ delete url = request $ do
     setUrl url
 
 postJSON :: (RedirectUrl App url, ToJSON a) => url -> a -> YesodExample App ()
-postJSON url body = request $ do
-    setMethod "POST"
-    addRequestHeader (hAccept, "application/json")
-    addRequestHeader (hContentType, "application/json")
-    setRequestBody $ encode body
-    setUrl url
+postJSON = requestJSON "POST"
 
 patchJSON :: (RedirectUrl App url, ToJSON a) => url -> a -> YesodExample App ()
-patchJSON url body = request $ do
-    setMethod "PUT"
-    addRequestHeader (hAccept, "application/json")
-    addRequestHeader (hContentType, "application/json")
-    setRequestBody $ encode body
-    setUrl url
+patchJSON = requestJSON "PATCH"
 
 putJSON :: (RedirectUrl App url, ToJSON a) => url -> a -> YesodExample App ()
-putJSON url body = request $ do
-    setMethod "PUT"
+putJSON = requestJSON "PUT"
+
+requestJSON :: (RedirectUrl App url, ToJSON a) => Method -> url -> a -> YesodExample App ()
+requestJSON method url body = request $ do
+    setMethod method
     addRequestHeader (hAccept, "application/json")
     addRequestHeader (hContentType, "application/json")
     setRequestBody $ encode body
@@ -83,14 +76,13 @@ withJSONResponse f = withResponse $ \rsp -> do
     maybe (expectationFailure $ "failed to parse " <> show bs) f $ decode bs
 
 wipeDB :: App -> IO ()
-wipeDB app = do
-    runDBWithApp app $ do
-        tables <- getTables
-        sqlBackend <- ask
+wipeDB app = runDBWithApp app $ do
+    tables <- getTables
+    sqlBackend <- ask
 
-        let escapedTables = map (connEscapeName sqlBackend . DBName) tables
-            query = "TRUNCATE TABLE " ++ (intercalate ", " escapedTables)
-        rawExecute query []
+    let escapedTables = map (connEscapeName sqlBackend . DBName) tables
+        query = "TRUNCATE TABLE " ++ intercalate ", " escapedTables
+    rawExecute query []
 
 getTables :: MonadIO m => ReaderT SqlBackend m [Text]
 getTables = do

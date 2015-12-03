@@ -10,11 +10,11 @@ main = hspec spec
 
 spec :: Spec
 spec = withApp $ do
-    describe "POST /commands/token/output" $ do
+    describe "POST /commands/token/output" $
         it "creates command output" $ do
-            now <- liftIO $ getCurrentTime
+            now <- liftIO getCurrentTime
             token <- newToken
-            void $ runDB $ insert $ Command
+            void $ runDB $ insert Command
                     { commandToken = token
                     , commandRunning = True
                     , commandDescription = Nothing
@@ -32,24 +32,24 @@ spec = withApp $ do
                 , "line 3\n"
                 ]
 
-    describe "GET /commands/token/output" $ do
+    describe "GET /commands/token/output" $
         it "streams output via websockets" $ do
-            now <- liftIO $ getCurrentTime
+            now <- liftIO getCurrentTime
             token <- newToken
             void $ runDB $ do
-                commandId <- insert $ Command
+                commandId <- insert Command
                     { commandToken = token
                     , commandRunning = True
                     , commandDescription = Nothing
                     , commandCreatedAt = now
                     }
 
-                void $ insert $ Output
+                void $ insert Output
                     { outputCommand = commandId
                     , outputContent = "line 1\n"
                     , outputCreatedAt = now
                     }
-                void $ insert $ Output
+                void $ insert Output
                     { outputCommand = commandId
                     , outputContent = "line 2\n"
                     , outputCreatedAt = now
