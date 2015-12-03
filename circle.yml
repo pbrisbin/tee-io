@@ -1,8 +1,8 @@
 machine:
   environment:
     # Just need to be non-empty to pass app initialization
-    AWS_ACCESS_KEY_ID=x
-    AWS_SECRET_ACCESS_KEY=x
+    AWS_ACCESS_KEY_ID: x
+    AWS_SECRET_ACCESS_KEY: x
 dependencies:
   cache_directories:
     - "~/.stack"
