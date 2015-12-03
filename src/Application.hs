@@ -28,7 +28,9 @@ import Network.Wai.Middleware.RequestLogger (Destination (Logger),
                                              mkRequestLogger, outputFormat)
 import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
                                              toLogStr)
-import Web.Heroku.Persist.Postgresql (postgresConf)
+
+import LoadEnv                              (loadEnv)
+import Web.Heroku.Persist.Postgresql        (postgresConf)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -48,6 +50,7 @@ mkYesodDispatch "App" resourcesApp
 -- migrations handled by Yesod.
 makeFoundation :: AppSettings -> IO App
 makeFoundation appSettings = do
+    loadEnv
     dbconf <- if appDatabaseUrl appSettings
         then postgresConf $ pgPoolSize $ appDatabaseConf appSettings
         else return $ appDatabaseConf appSettings

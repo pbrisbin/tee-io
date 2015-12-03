@@ -94,6 +94,7 @@ library
                  , lens
                  , http-types
                  , conduit-extra
+                 , load-env
 
 
 executable         tee-io
