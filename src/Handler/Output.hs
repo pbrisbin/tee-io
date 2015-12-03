@@ -28,6 +28,8 @@ postOutputR token = do
             , outputCreatedAt = now
             }
 
+    sendResponseStatus status201 ()
+
 getOutputR :: Token -> Handler ()
 getOutputR token = do
     Entity commandId _ <- runDB $ getBy404 $ UniqueCommand token
