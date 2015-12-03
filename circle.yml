@@ -15,5 +15,7 @@ dependencies:
     - stack build --ghc-options -DDEVELOPMENT
 
 test:
+  pre:
+    - bin/setup
   override:
     - stack test --ghc-options -DDEVELOPMENT
