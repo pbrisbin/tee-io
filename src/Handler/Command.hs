@@ -16,7 +16,7 @@ data CommandRequest = CommandRequest
     }
 
 instance FromJSON CommandRequest where
-    parseJSON = withObject "Command.CommandRequest" $ \o -> CommandRequest
+    parseJSON = withObject "CommandRequest" $ \o -> CommandRequest
         <$> o .:? "running" .!= True
         <*> o .:? "description"
 

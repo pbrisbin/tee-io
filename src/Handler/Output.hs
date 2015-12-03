@@ -3,16 +3,16 @@ module Handler.Output
     , getOutputR
     ) where
 
-import Import hiding (Request)
+import Import
 import Network.WebSockets (ConnectionException)
 import Yesod.WebSockets
 
-data Request = Request
+data OutputRequest = OutputRequest
     { reqContent :: Text
     }
 
-instance FromJSON Request where
-    parseJSON = withObject "Output.Request" $ \o -> Request
+instance FromJSON OutputRequest where
+    parseJSON = withObject "OutputRequest" $ \o -> OutputRequest
         <$> o .: "content"
 
 postOutputR :: Token -> Handler ()
