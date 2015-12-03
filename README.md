@@ -2,6 +2,4 @@
 
 It's like `tee(1)` as a service.
 
-## Demo
-
-![demo](static/demo.gif)
+For details, see the [home page](https://tee-io.herokuapp.com/)
