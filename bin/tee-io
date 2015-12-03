@@ -68,5 +68,3 @@ EOF
     printf -- "%s\n" "$REPLY"
   fi
 done
-
-echo '{"running":false}' | curl_json "/commands/$token" PATCH
