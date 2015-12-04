@@ -10,6 +10,7 @@ import Control.Exception           (throw)
 import Data.Aeson                  (Result (..), fromJSON, withObject, (.!=),
                                     (.:?))
 import Data.FileEmbed              (embedFile)
+import Data.Time.Units             (Second)
 import Data.Yaml                   (decodeEither')
 import Database.Persist.Postgresql (PostgresConf(..))
 import Language.Haskell.TH.Syntax  (Exp, Name, Q)
@@ -39,7 +40,7 @@ data AppSettings = AppSettings
     , appIpFromHeader           :: Bool
     -- ^ Get the IP address from the header when logging. Useful when sitting
     -- behind a reverse proxy.
-    , appCommandTimeout         :: Int
+    , appCommandTimeout         :: Second
     -- ^ How long to consider a command no longer running in seconds
     , appS3Bucket               :: BucketName
     -- ^ S3 bucket to archive commands to
@@ -71,7 +72,7 @@ instance FromJSON AppSettings where
         appHost                   <- fromString <$> o .: "host"
         appPort                   <- o .: "port"
         appIpFromHeader           <- o .: "ip-from-header"
-        appCommandTimeout         <- o .: "command-timeout"
+        appCommandTimeout         <- toSecond <$> o .: "command-timeout"
         appS3Bucket               <- BucketName <$> o .: "s3-bucket"
 
         appDetailedRequestLogging <- o .:? "detailed-logging" .!= defaultDev
@@ -93,6 +94,9 @@ instance FromJSON AppSettings where
 
         toKeyValue :: (Text, Text) -> Text
         toKeyValue (k, v) = k <> "=" <> v
+
+        toSecond :: Integer -> Second
+        toSecond = fromIntegral
 
 -- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.

@@ -20,7 +20,11 @@ postOutputR token = do
     now <- liftIO getCurrentTime
     req <- requireJsonBody
     void $ runDB $ do
-        Entity commandId _ <- getBy404 $ UniqueCommand token
+        Entity commandId command <- getBy404 $ UniqueCommand token
+
+        when (not $ commandRunning command) $ lift $ do
+            timeout <- (appCommandTimeout . appSettings) <$> getYesod
+            invalidArgs ["command timed out after " <> pack (show timeout)]
 
         insert Output
             { outputCommand = commandId

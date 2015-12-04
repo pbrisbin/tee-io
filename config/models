@@ -4,6 +4,7 @@ Command
   description Text Maybe
   createdAt UTCTime
   UniqueCommand token
+  deriving Eq Show
 
 Output
   command CommandId

@@ -13,7 +13,8 @@ Flag library-only
 
 library
     hs-source-dirs: src, app
-    exposed-modules: Application
+    exposed-modules: Data.Time.Duration
+                     Application
                      Foundation
                      Import
                      Import.NoFoundation
@@ -26,6 +27,7 @@ library
                      Handler.Command
                      Handler.Output
                      Archive
+                     Worker
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -95,13 +97,25 @@ library
                  , http-types
                  , conduit-extra
                  , load-env
-
+                 , time-units
+                 , scientific
+                 , esqueleto
 
 executable         tee-io
     if flag(library-only)
         Buildable: False
 
     main-is:           main.hs
+    hs-source-dirs:    app
+    build-depends:     base, tee-io
+
+    ghc-options:       -threaded -O2 -rtsopts -with-rtsopts=-N
+
+executable         tee-io-worker
+    if flag(library-only)
+        Buildable: False
+
+    main-is:           main-worker.hs
     hs-source-dirs:    app
     build-depends:     base, tee-io
 
