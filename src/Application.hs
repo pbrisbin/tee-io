@@ -30,7 +30,6 @@ import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
                                              toLogStr)
 
 import LoadEnv                              (loadEnv)
-import Web.Heroku.Persist.Postgresql        (postgresConf)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -51,9 +50,6 @@ mkYesodDispatch "App" resourcesApp
 makeFoundation :: AppSettings -> IO App
 makeFoundation appSettings = do
     loadEnv
-    dbconf <- if appDatabaseUrl appSettings
-        then postgresConf $ pgPoolSize $ appDatabaseConf appSettings
-        else return $ appDatabaseConf appSettings
 
     -- Some basic initializations: HTTP connection manager, logger, and static
     -- subsite.
@@ -63,6 +59,7 @@ makeFoundation appSettings = do
     appStatic <-
         (if appMutableStatic appSettings then staticDevel else static)
         (appStaticDir appSettings)
+
     -- We need a log function to create a connection pool. We need a connection
     -- pool to create our foundation. And we need our foundation to get a
     -- logging function. To get out of this loop, we initially create a
@@ -74,8 +71,8 @@ makeFoundation appSettings = do
 
     -- Create the database connection pool
     pool <- flip runLoggingT logFunc $ createPostgresqlPool
-        (pgConnStr dbconf)
-        (pgPoolSize dbconf)
+        (pgConnStr  $ appDatabaseConf appSettings)
+        (pgPoolSize $ appDatabaseConf appSettings)
 
     -- Perform database migration using our application's logging settings.
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc

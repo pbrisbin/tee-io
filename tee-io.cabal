@@ -87,7 +87,7 @@ library
                  , yesod-websockets
                  , persistent
                  , persistent-postgresql
-                 , heroku-persistent
+                 , heroku
                  , websockets
                  , amazonka >= 1.3.5
                  , amazonka-s3

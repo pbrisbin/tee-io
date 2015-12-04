@@ -1,3 +1,2 @@
 should-log-all: false
-database:
-  database: teeio_test
+database-url: "postgres://teeio:teeio@localhost:5432/teeio_test"

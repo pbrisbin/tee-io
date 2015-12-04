@@ -11,13 +11,14 @@ import Data.Aeson                  (Result (..), fromJSON, withObject, (.!=),
                                     (.:?))
 import Data.FileEmbed              (embedFile)
 import Data.Yaml                   (decodeEither')
-import Database.Persist.Postgresql (PostgresConf)
+import Database.Persist.Postgresql (PostgresConf(..))
 import Language.Haskell.TH.Syntax  (Exp, Name, Q)
 import Network.AWS.S3              (BucketName(..))
 import Network.Wai.Handler.Warp    (HostPreference)
 import Yesod.Default.Config2       (applyEnvValue, configSettingsYml)
 import Yesod.Default.Util          (WidgetFileSettings, widgetFileNoReload,
                                     widgetFileReload)
+import Web.Heroku.Postgres         (parseDatabaseUrl)
 
 -- | Runtime settings to configure this application. These settings can be
 -- loaded from various sources: defaults, environment variables, config files,
@@ -27,6 +28,8 @@ data AppSettings = AppSettings
     -- ^ Directory from which to serve static files.
     , appDatabaseConf           :: PostgresConf
     -- ^ Configuration settings for accessing the database.
+    , appDatabasePoolSize       :: Int
+    -- ^ Database pool size
     , appRoot                   :: Text
     -- ^ Base for all generated URLs.
     , appHost                   :: HostPreference
@@ -51,8 +54,6 @@ data AppSettings = AppSettings
     -- ^ Assume that files in the static dir may change after compilation
     , appSkipCombining          :: Bool
     -- ^ Perform no stylesheet/script combining
-    , appDatabaseUrl            :: Bool
-    -- ^ Parse DB connection info from DATABASE_URL?
     }
 
 instance FromJSON AppSettings where
@@ -64,7 +65,8 @@ instance FromJSON AppSettings where
                 False
 #endif
         appStaticDir              <- o .: "static-dir"
-        appDatabaseConf           <- o .: "database"
+        appDatabasePoolSize       <- o .: "database-pool-size"
+        appDatabaseConf           <- fromDatabaseUrl appDatabasePoolSize <$> o .: "database-url"
         appRoot                   <- o .: "approot"
         appHost                   <- fromString <$> o .: "host"
         appPort                   <- o .: "port"
@@ -77,8 +79,20 @@ instance FromJSON AppSettings where
         appReloadTemplates        <- o .:? "reload-templates" .!= defaultDev
         appMutableStatic          <- o .:? "mutable-static"   .!= defaultDev
         appSkipCombining          <- o .:? "skip-combining"   .!= defaultDev
-        appDatabaseUrl            <- o .:? "database-url"     .!= not defaultDev
         return AppSettings {..}
+
+      where
+        fromDatabaseUrl :: Int -> String -> PostgresConf
+        fromDatabaseUrl poolSize url = PostgresConf
+            { pgConnStr = formatParams $ parseDatabaseUrl url
+            , pgPoolSize = poolSize
+            }
+
+        formatParams :: [(Text, Text)] -> ByteString
+        formatParams = encodeUtf8 . unwords . map toKeyValue
+
+        toKeyValue :: (Text, Text) -> Text
+        toKeyValue (k, v) = k <> "=" <> v
 
 -- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.

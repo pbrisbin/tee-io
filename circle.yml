@@ -12,10 +12,10 @@ dependencies:
     - chmod +x /tmp/stack && sudo mv /tmp/stack /usr/bin/stack
   override:
     - stack setup
-    - stack build --ghc-options -DDEVELOPMENT
+    - stack build
 
 test:
   pre:
     - bin/setup
   override:
-    - stack test --ghc-options -DDEVELOPMENT
+    - stack test

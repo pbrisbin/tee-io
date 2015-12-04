@@ -9,6 +9,9 @@ ip-from-header:  "_env:IP_FROM_HEADER:false"
 command-timeout: "_env:COMMAND_TIMEOUT:300"
 s3-bucket:       "_env:S3_BUCKET:tee.io.development"
 
+database-url:       "_env:DATABASE_URL:postgres://teeio:teeio@localhost:5432/teeio"
+database-pool-size: "_env:PGPOOLSIZE:10" # use conventional variable
+
 # Optional values with the following production defaults.
 # In development, they default to the inverse.
 #
@@ -18,13 +21,3 @@ s3-bucket:       "_env:S3_BUCKET:tee.io.development"
 # reload-templates: false
 # mutable-static: false
 # skip-combining: false
-#
-# database-url: true
-
-database:
-  user:     "_env:PGUSER:teeio"
-  password: "_env:PGPASS:teeio"
-  host:     "_env:PGHOST:localhost"
-  port:     "_env:PGPORT:5432"
-  database: "_env:PGDATABASE:teeio"
-  poolsize: "_env:PGPOOLSIZE:10"
