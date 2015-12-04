@@ -8,7 +8,9 @@ function Output(elem) {
 Output.prototype.append = function(text) {
   this.elem.textContent += text
 
-  window.scrollTo(0, document.body.scrollHeight);
+  if (text != "") {
+    window.scrollTo(0, document.body.scrollHeight);
+  }
 };
 
 Output.prototype.connect = function() {
