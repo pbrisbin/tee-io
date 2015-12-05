@@ -90,6 +90,7 @@ instance Yesod App where
     -- in development, and warnings and errors in production.
     shouldLog app _source level =
         appShouldLogAll (appSettings app)
+            || level == LevelInfo
             || level == LevelWarn
             || level == LevelError
 
