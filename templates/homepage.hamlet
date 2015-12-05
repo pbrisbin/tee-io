@@ -24,13 +24,13 @@
 
 <h2>Usage
 
-<p>
-  Interaction with
-  <code>tee.io
-  is done through a simple API documented on
-  <a href="http://docs.teeio.apiary.io">apiary</a>.
-  There's also a reference
-  <a href=@{StaticR tee_io}>command-line client</a>.
+<ul>
+  <li>
+    <a href="http://docs.teeio.apiary.io">API Documentation
+  <li>
+    <a href="https://rubygems.org/gems/tee-io">Ruby SDK
+  <li>
+    <a href=@{StaticR tee_io}>command-line client
 
 <h2>Motivation
 
