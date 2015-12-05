@@ -1,2 +1,9 @@
+.env*
 .git
-.env
+.stack-work
+circle.yml
+dist
+docker-compose.yml
+tags
+test
+yesod-devel

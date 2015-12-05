@@ -26,8 +26,14 @@ RUN wget -O /app/user/cabal.config https://www.stackage.org/lts-3.5/cabal.config
 
 # Install dependencies in their own layer to speed up builds.
 RUN cabal update && cabal install \
-  amazonka-s3 classy-prelude-yesod \
-  yesod yesod-websockets uuid
+  amazonka \
+  amazonka-s3 \
+  classy-prelude-yesod \
+  esqueleto \
+  persistent-postgresql \
+  uuid \
+  yesod \
+  yesod-websockets
 
 # In case we missed something above
 COPY LICENSE /app/user/LICENSE
