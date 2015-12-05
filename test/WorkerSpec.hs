@@ -16,7 +16,7 @@ spec = withApp $
         it "does not find recent commands" $ do
             now <- liftIO getCurrentTime
             token <- newToken
-            runDB $ insert Command
+            void $ runDB $ insert Command
                 { commandToken = token
                 , commandRunning = True
                 , commandDescription = Nothing
@@ -37,7 +37,7 @@ spec = withApp $
                     , commandCreatedAt = (35 :: Second) `priorTo` now
                     }
 
-                insert Output
+                void $ insert Output
                     { outputCommand = commandId
                     , outputContent = ""
                     , outputCreatedAt = now
@@ -51,7 +51,7 @@ spec = withApp $
             token1 <- newToken
             token2 <- newToken
             runDB $ do
-                insert Command
+                void $ insert Command
                     { commandToken = token1
                     , commandRunning = True
                     , commandDescription = Nothing
@@ -65,7 +65,7 @@ spec = withApp $
                     , commandCreatedAt = (40 :: Second) `priorTo` now
                     }
 
-                insert Output
+                void $ insert Output
                     { outputCommand = commandId
                     , outputContent = ""
                     , outputCreatedAt = (35 :: Second) `priorTo` now
