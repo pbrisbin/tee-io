@@ -8,6 +8,7 @@ approot:         "_env:APPROOT:http://localhost:3000"
 ip-from-header:  "_env:IP_FROM_HEADER:false"
 command-timeout: "_env:COMMAND_TIMEOUT:300"
 s3-bucket:       "_env:S3_BUCKET:tee.io.development"
+debug:           "_env:DEBUG:false"
 
 database-url:       "_env:DATABASE_URL:postgres://teeio:teeio@localhost:5432/teeio"
 database-pool-size: "_env:PGPOOLSIZE:10" # use conventional variable
@@ -15,9 +16,6 @@ database-pool-size: "_env:PGPOOLSIZE:10" # use conventional variable
 # Optional values with the following production defaults.
 # In development, they default to the inverse.
 #
-# development: false
-# detailed-logging: false
-# should-log-all: false
 # reload-templates: false
 # mutable-static: false
 # skip-combining: false

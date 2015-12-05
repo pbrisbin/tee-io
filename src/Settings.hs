@@ -44,11 +44,9 @@ data AppSettings = AppSettings
     -- ^ How long to consider a command no longer running in seconds
     , appS3Bucket               :: BucketName
     -- ^ S3 bucket to archive commands to
+    , appDebug                  :: Bool
+    -- ^ Should logging occur at the DEBUG level (otherwise INFO)
 
-    , appDetailedRequestLogging :: Bool
-    -- ^ Use detailed request logging system
-    , appShouldLogAll           :: Bool
-    -- ^ Should all log messages be displayed?
     , appReloadTemplates        :: Bool
     -- ^ Use the reload version of templates
     , appMutableStatic          :: Bool
@@ -74,9 +72,8 @@ instance FromJSON AppSettings where
         appIpFromHeader           <- o .: "ip-from-header"
         appCommandTimeout         <- toSecond <$> o .: "command-timeout"
         appS3Bucket               <- BucketName <$> o .: "s3-bucket"
+        appDebug                  <- o .: "debug"
 
-        appDetailedRequestLogging <- o .:? "detailed-logging" .!= defaultDev
-        appShouldLogAll           <- o .:? "should-log-all"   .!= defaultDev
         appReloadTemplates        <- o .:? "reload-templates" .!= defaultDev
         appMutableStatic          <- o .:? "mutable-static"   .!= defaultDev
         appSkipCombining          <- o .:? "skip-combining"   .!= defaultDev

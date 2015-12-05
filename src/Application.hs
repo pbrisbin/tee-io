@@ -86,7 +86,7 @@ makeApplication :: App -> IO Application
 makeApplication foundation = do
     logWare <- mkRequestLogger def
         { outputFormat =
-            if appDetailedRequestLogging $ appSettings foundation
+            if appDebug $ appSettings foundation
                 then Detailed True
                 else Apache
                         (if appIpFromHeader $ appSettings foundation
