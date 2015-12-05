@@ -22,7 +22,7 @@ postOutputR token = do
     void $ runDB $ do
         Entity commandId command <- getBy404 $ UniqueCommand token
 
-        when (not $ commandRunning command) $ lift $ do
+        unless (commandRunning command) $ lift $ do
             timeout <- (appCommandTimeout . appSettings) <$> getYesod
             invalidArgs ["command timed out after " <> pack (show timeout)]
 

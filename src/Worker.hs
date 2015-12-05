@@ -48,7 +48,7 @@ archivableCommands timeout = do
             (mo ?. OutputCreatedAt >. just (val cutoff)))
         where_ ((c ^. CommandRunning ==. val True) &&.
                 (c ^. CommandCreatedAt <. val cutoff) &&.
-                (isNothing $ mo ?. OutputId))
+                isNothing (mo ?. OutputId))
         return c
 
 archiveCommand :: Entity Command -> ReaderT SqlBackend Handler ()

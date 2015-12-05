@@ -16,7 +16,7 @@ import qualified Data.ByteString.Lazy as BL
 archiveOutput :: Token -> [Output] -> Handler ()
 archiveOutput token outputs = runS3 token $ \b k ->
     void $ send $ putObject b k $ toBody $
-        BL.fromStrict $ concat $ map (encodeUtf8 . outputContent) outputs
+        BL.fromStrict $ concatMap (encodeUtf8 . outputContent) outputs
 
 archivedOutput :: Token -> Handler BL.ByteString
 archivedOutput token = runS3 token $ \b k -> do
@@ -24,7 +24,7 @@ archivedOutput token = runS3 token $ \b k -> do
     view gorsBody rs `sinkBody` sinkLbs
 
 deleteArchivedOutput :: Token -> Handler ()
-deleteArchivedOutput token = runS3 token $ \b k -> do
+deleteArchivedOutput token = runS3 token $ \b k ->
     void $ send $ deleteObject b k
 
 runS3 :: Token -> (BucketName -> ObjectKey -> AWS a) -> Handler a

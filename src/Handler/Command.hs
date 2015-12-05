@@ -34,9 +34,9 @@ postCommandsR = do
         }
 
     selectRep $ do
-        provideRep $ (sendResponseStatus status201 $ tokenText token :: Handler Text)
-        provideRep $ (sendResponseStatus status201 $ object ["token" .= token] :: Handler Value)
-        provideRep $ (redirect $ CommandR token :: Handler Html)
+        provideRep (sendResponseStatus status201 $ tokenText token :: Handler Text)
+        provideRep (sendResponseStatus status201 $ object ["token" .= token] :: Handler Value)
+        provideRep (redirect $ CommandR token :: Handler Html)
 
 getCommandR :: Token -> Handler Html
 getCommandR token = do
