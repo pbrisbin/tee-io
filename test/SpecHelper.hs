@@ -3,7 +3,7 @@ module SpecHelper
     , module X
     ) where
 
-import Application           (makeFoundation)
+import Application           (makeFoundation, makeLogWare)
 import ClassyPrelude         as X
 import Data.Aeson            as X
 import Database.Persist      as X hiding (get, delete)
@@ -28,7 +28,7 @@ import Yesod.Test            as X
 import Database.Persist.Sql  (SqlPersistM, SqlBackend, runSqlPersistMPool, rawExecute, rawSql, unSingle, connEscapeName)
 import Yesod.Core.Handler (RedirectUrl)
 
-withApp :: SpecWith App -> Spec
+withApp :: SpecWith (TestApp App) -> Spec
 withApp = before $ do
     settings <- loadAppSettings
         ["config/test-settings.yml", "config/settings.yml"]
@@ -37,7 +37,8 @@ withApp = before $ do
 
     app <- makeFoundation settings
     wipeDB app
-    return app
+    logWare <- liftIO $ makeLogWare app
+    return (app, logWare)
 
 runDB :: SqlPersistM a -> YesodExample App a
 runDB query = do
