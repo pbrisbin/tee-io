@@ -1,1 +1,70 @@
-../bin/tee-io
+#!/bin/sh
+set -e
+
+usage() {
+  cat <<EOF
+usage: CMD | tee-io [OPTION, ...]
+
+options:
+
+  -d, --description [DESCRIPTION]       include command description
+  -q, --quiet                           don't echo captured output
+  -H, --host                            send data to a different host
+  -h, --help                            show this message
+
+EOF
+}
+
+json_escape() {
+  printf -- "%s" "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+curl_json() {
+  local path=$1 method=${2:-POST}
+
+  curl \
+    --silent \
+    --header "Content-type: application/json" \
+    --request "$method" --data @- "$host$path"
+}
+
+host="https://tee-io.herokuapp.com"
+quiet=0
+description=""
+
+while [ -n "$1" ]; do
+  case "$1" in
+    -d|--description) shift; description=$1 ;;
+    -q|--quiet) quiet=1 ;;
+    -H|--host) shift; host=$1 ;;
+    -h|--help) usage; exit ;;
+    *) usage >&2; exit 64 ;;
+  esac
+
+  shift
+done
+
+if [ -n "$description" ]; then
+  token=$(curl_json "/commands" <<EOF
+{
+  "description":"$(json_escape "$description")"
+}
+EOF
+  )
+else
+  token=$(echo '{}' | curl_json "/commands")
+fi
+
+printf "%s/commands/%s\n" "$host" "$token"
+
+while read -r; do
+  curl_json "/commands/$token/output" <<EOF
+{
+  "content":"$(json_escape "$REPLY")\\n"
+}
+EOF
+
+  if [ $quiet -ne 1 ]; then
+    printf -- "%s\n" "$REPLY"
+  fi
+done
