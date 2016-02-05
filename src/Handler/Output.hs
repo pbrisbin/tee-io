@@ -46,10 +46,20 @@ outputStream commandId start = catchingConnectionException $ do
         [OutputCommand ==. commandId]
         [Asc OutputCreatedAt, OffsetBy start]
 
-    sendTextDataAck ""
-    mapM_ (sendTextDataAck . outputContent . entityVal) outputs
+    -- if we get no (more) output, check if the command is still running
+    stop <- return (null outputs) &&^ not <$> commandRunning
 
-    outputStream commandId (start + length outputs)
+    unless stop $ do
+        sendTextDataAck ""
+        mapM_ (sendTextDataAck . outputContent . entityVal) outputs
+
+        outputStream commandId (start + length outputs)
+
+  where
+    commandRunning = lift $ runDB $ exists
+        [ CommandId ==. commandId
+        , CommandRunning ==. True
+        ]
 
 catchingConnectionException :: WebSocketsT Handler () -> WebSocketsT Handler ()
 catchingConnectionException f = f `catch` \e ->
@@ -63,3 +73,10 @@ sendTextDataAck msg = do
 -- Just fixing the type to Text
 receiveTextData :: MonadIO m => WebSocketsT m Text
 receiveTextData = receiveData
+
+-- In this context, it's important the second action isn't evaluated if the
+-- first gives @False@ (otherwise we'd make a needless DB query every output
+-- iteration). That rules out most existing implementations, including obvious
+-- ones like @liftM2 (&&)@.
+(&&^) :: Monad m => m Bool -> m Bool -> m Bool
+ma &&^ mb = ma >>= \a -> if a then mb else return False
