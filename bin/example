@@ -11,7 +11,7 @@
 
   echo "my output is being forwarded to tee.io via this script:"
   echo ""; sleep 2
-  sed 's/^/  > /g' bin/tee-io
+  sed 's/^/  > /g' static/tee-io
   echo ""; sleep 1
 
   echo "you should be seeing it live in a web page"
