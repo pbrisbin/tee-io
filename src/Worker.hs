@@ -20,19 +20,17 @@ import Import hiding
 import Archive
 import Application (handler)
 
-import Control.Concurrent (threadDelay)
 import Data.Time.Duration
 import Database.Esqueleto
 
 workerMain :: IO ()
-workerMain = handler $ forever $ do
-    $(logInfo) $ "worker loop start"
+workerMain = handler $ do
+    $(logInfo) $ "worker start"
 
     timeout <- appCommandTimeout . appSettings <$> getYesod
     archiveCommands timeout
 
-    $(logInfo) $ "worker loop end"
-    sleep $ timeout * 2
+    $(logInfo) $ "worker end"
 
 archiveCommands :: Second -> Handler ()
 archiveCommands timeout = runDB $ do
@@ -68,6 +66,3 @@ archiveCommand (Entity commandId command) = do
         where_ (c ^. CommandId ==. val commandId)
 
     $(logInfo) $ "archived to S3 " <> tokenText (commandToken command)
-
-sleep :: MonadIO m => TimeUnit a => a -> m ()
-sleep = liftIO . threadDelay . fromInteger . toMicroseconds
