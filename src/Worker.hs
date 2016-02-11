@@ -66,11 +66,6 @@ archiveCommand (Entity commandId command) = do
     outputs <- commandOutputs commandId 0
     lift $ archiveOutput (commandToken command) outputs
 
-    delete $ from $ \o ->
-        where_ (o ^. OutputCommand ==. val commandId)
-
-    update $ \c -> do
-        set c [CommandRunning =. val False]
-        where_ (c ^. CommandId ==. val commandId)
+    deleteCommand commandId
 
     $(logInfo) $ "archived to S3 " <> tokenText (commandToken command)
