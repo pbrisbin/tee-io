@@ -63,11 +63,7 @@ archiveCommand :: Entity Command -> ReaderT SqlBackend Handler ()
 archiveCommand (Entity commandId command) = do
     $(logDebug) $ "archiving to S3 " <> tokenText (commandToken command) <> "..."
 
-    results <- select $ from $ \o -> do
-        where_ (o ^. OutputCommand ==. val commandId)
-        return o
-
-    let outputs = map entityVal results
+    outputs <- commandOutputs commandId 0
     lift $ archiveOutput (commandToken command) outputs
 
     delete $ from $ \o ->

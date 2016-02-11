@@ -42,16 +42,14 @@ getOutputR token = do
 
 outputStream :: CommandId -> Int -> WebSocketsT Handler ()
 outputStream commandId start = catchingConnectionException $ do
-    outputs <- lift $ runDB $ selectList
-        [OutputCommand ==. commandId]
-        [Asc OutputCreatedAt, OffsetBy start]
+    outputs <- lift $ runDB $ commandOutputs commandId start
 
     -- if we get no (more) output, check if the command is still running
     stop <- return (null outputs) &&^ not <$> commandRunning
 
     unless stop $ do
         sendTextDataAck ""
-        mapM_ (sendTextDataAck . outputContent . entityVal) outputs
+        mapM_ (sendTextDataAck . outputContent) outputs
 
         outputStream commandId (start + length outputs)
 

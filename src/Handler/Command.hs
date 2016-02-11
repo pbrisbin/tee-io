@@ -52,8 +52,7 @@ deleteCommandR token = do
     wasRunning <- runDB $ do
         Entity commandId command <- getBy404 $ UniqueCommand token
 
-        deleteWhere [OutputCommand ==. commandId]
-        delete commandId
+        deleteCommand commandId
 
         return $ commandRunning command
 
