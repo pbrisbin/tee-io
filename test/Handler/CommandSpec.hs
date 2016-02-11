@@ -51,5 +51,5 @@ spec = withApp $ do
             delete $ CommandR token
             statusIs 200
 
-            get $ CommandR token
-            statusIs 404
+            results <- runDB $ selectList [CommandToken ==. token] []
+            results `shouldBe` []

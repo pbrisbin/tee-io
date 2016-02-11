@@ -161,3 +161,4 @@ test-suite test
                  , yesod-persistent
                  , persistent
                  , uuid
+                 , load-env
