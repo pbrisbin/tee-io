@@ -13,6 +13,7 @@ module Application
     , db
     ) where
 
+import Control.Lens                         (set)
 import Control.Monad.Logger                 (liftLoc, runLoggingT)
 import Database.Persist.Postgresql          (createPostgresqlPool, pgConnStr,
                                              pgPoolSize, runSqlPool)
@@ -23,7 +24,6 @@ import Network.Wai.Handler.Warp             (Settings, defaultSettings,
                                              defaultShouldDisplayException,
                                              runSettings, setHost,
                                              setOnException, setPort, getPort)
-import Network.AWS                          (Credentials(..), Region(..), newEnv)
 import Network.Wai.Middleware.RequestLogger (Destination (Logger),
                                              IPAddrSource (..),
                                              OutputFormat (..), destination,
@@ -40,6 +40,8 @@ import Handler.Home
 import Handler.Command
 import Handler.Output
 
+import qualified Network.AWS as AWS
+
 -- This line actually creates our YesodDispatch instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
 -- comments there for more details.
@@ -51,11 +53,14 @@ mkYesodDispatch "App" resourcesApp
 -- migrations handled by Yesod.
 makeFoundation :: AppSettings -> IO App
 makeFoundation appSettings = do
-    loadEnv
+    when (appDebug appSettings) $ do
+        putStrLn "=== App Settings ==="
+        print appSettings
+        putStrLn "=== App Settings ==="
 
     -- Some basic initializations: HTTP connection manager, logger, and static
     -- subsite.
-    appAWSEnv <- newEnv NorthVirginia Discover
+    appAWSEnv <- newAWSEnv $ appDebug appSettings
     appHttpManager <- newManager
     appLogger <- newStdoutLoggerSet defaultBufSize >>= makeYesodLogger
     appStatic <-
@@ -81,6 +86,11 @@ makeFoundation appSettings = do
 
     -- Return the foundation
     return $ mkFoundation pool
+
+  where
+    newAWSEnv debug = do
+        logger <- AWS.newLogger (if debug then AWS.Debug else AWS.Error) stdout
+        set AWS.envLogger logger <$> AWS.newEnv AWS.NorthVirginia AWS.Discover
 
 -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
 -- applying some additional middlewares.
@@ -129,7 +139,9 @@ getApplicationDev = do
     return (wsettings, app)
 
 getAppSettings :: IO AppSettings
-getAppSettings = loadAppSettings [configSettingsYml] [] useEnv
+getAppSettings = do
+    loadEnv
+    loadAppSettings [configSettingsYml] [] useEnv
 
 -- | main function for use by yesod devel
 develMain :: IO ()
@@ -139,12 +151,7 @@ develMain = develMainHelper getApplicationDev
 appMain :: IO ()
 appMain = do
     -- Get the settings from all relevant sources
-    settings <- loadAppSettingsArgs
-        -- fall back to compile-time values, set to [] to require values at runtime
-        [configSettingsYmlValue]
-
-        -- allow environment variables to override
-        useEnv
+    settings <- getAppSettings
 
     -- Generate the foundation from the settings
     foundation <- makeFoundation settings

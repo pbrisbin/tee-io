@@ -23,6 +23,8 @@ import Application (handler)
 import Data.Time.Duration
 import Database.Esqueleto
 
+import qualified Data.Text as T
+
 workerMain :: IO ()
 workerMain = handler $ do
     $(logInfo) $ "worker start"
@@ -34,7 +36,15 @@ workerMain = handler $ do
 
 archiveCommands :: Second -> Handler ()
 archiveCommands timeout = runDB $ do
+    $(logDebug) $ "archiving commands stale for "
+        <> T.pack (show timeout)
+        <> " seconds"
+
     commands <- archivableCommands timeout
+
+    $(logDebug) $ "found "
+        <> T.pack (show $ length commands)
+        <> " command(s) to archive"
 
     mapM_ archiveCommand commands
 
@@ -51,6 +61,8 @@ archivableCommands timeout = do
 
 archiveCommand :: Entity Command -> ReaderT SqlBackend Handler ()
 archiveCommand (Entity commandId command) = do
+    $(logDebug) $ "archiving to S3 " <> tokenText (commandToken command) <> "..."
+
     results <- select $ from $ \o -> do
         where_ (o ^. OutputCommand ==. val commandId)
         return o

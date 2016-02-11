@@ -54,6 +54,7 @@ data AppSettings = AppSettings
     , appSkipCombining          :: Bool
     -- ^ Perform no stylesheet/script combining
     }
+    deriving Show
 
 instance FromJSON AppSettings where
     parseJSON = withObject "AppSettings" $ \o -> do
