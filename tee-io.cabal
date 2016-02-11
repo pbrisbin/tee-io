@@ -27,6 +27,7 @@ library
                      Handler.Command
                      Handler.Output
                      Archive
+                     CommandContent
                      Worker
 
     if flag(dev) || flag(library-only)

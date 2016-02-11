@@ -9,6 +9,7 @@ module Handler.Command
 
 import Import
 import Archive
+import CommandContent
 
 data CommandRequest = CommandRequest
     { reqRunning :: Bool
@@ -40,12 +41,7 @@ postCommandsR = do
 
 getCommandR :: Token -> Handler Html
 getCommandR token = do
-    Entity _ command <- runDB $ getBy404 $ UniqueCommand token
-
-    mcontent <-
-        if not $ commandRunning command
-            then Just <$> archivedOutput token
-            else return Nothing
+    content <- runDB $ findContent404 token
 
     defaultLayout $ do
         setTitle "tee.io - Command"

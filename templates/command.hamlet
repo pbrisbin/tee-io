@@ -1,16 +1,5 @@
 <header>
-  <span .right>
-    <strong>created at:
-    #{show $ commandCreatedAt command}
-
-  <strong>command:
-  $maybe desc <- commandDescription command
-    #{desc}
-  $nothing
-    no description
+  ^{contentHeader content}
 
 <pre>
-  $maybe content <- mcontent
-    <code>#{decodeUtf8 content}
-  $nothing
-    <code #output data-stream-url=@{OutputR token}>
+  ^{contentBody content}
