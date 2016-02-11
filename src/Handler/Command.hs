@@ -11,6 +11,9 @@ import Import
 import Archive
 import CommandContent
 
+import Network.AWS (catching)
+import Network.AWS.S3 (_NoSuchKey)
+
 data CommandRequest = CommandRequest
     { reqRunning :: Bool
     , reqDescription :: Maybe Text
@@ -49,14 +52,8 @@ getCommandR token = do
 
 deleteCommandR :: Token -> Handler ()
 deleteCommandR token = do
-    wasRunning <- runDB $ do
-        Entity commandId command <- getBy404 $ UniqueCommand token
-
-        deleteCommand commandId
-
-        return $ commandRunning command
-
-    unless wasRunning $ deleteArchivedOutput token
+    runDB $ mapM_ (deleteCommand . entityKey) =<< getBy (UniqueCommand token)
+    catching _NoSuchKey (deleteArchivedOutput token) $ \_ -> return ()
 
 -- Deprecated. Originally we required callers to update commands to
 -- running:false so we could take steps to archive content to S3. We'll instead
