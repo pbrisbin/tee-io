@@ -22,8 +22,7 @@ findContent404 token = do
     mcommand <- getBy $ UniqueCommand token
 
     case mcommand of
-        Just (Entity _ command)
-            | commandRunning command -> return $ Live token command
+        Just (Entity _ command) -> return $ Live token command
         _ -> lift $ Archived
             <$> catching _NoSuchKey (archivedOutput token) (\_ -> notFound)
 

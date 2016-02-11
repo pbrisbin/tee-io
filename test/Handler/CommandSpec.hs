@@ -26,7 +26,6 @@ spec = withApp $ do
 
             withJSONResponse $ \(Response token) -> do
                 Entity _ command <- runDB $ getBy404 $ UniqueCommand token
-                commandRunning command `shouldBe` True
                 commandDescription command `shouldBe` Nothing
 
         it "creates a command with a description" $ do
@@ -34,7 +33,6 @@ spec = withApp $ do
 
             withJSONResponse $ \(Response token) -> do
                 Entity _ command <- runDB $ getBy404 $ UniqueCommand token
-                commandRunning command `shouldBe` True
                 commandDescription command `shouldBe` Just "test command"
 
     -- describe "DELETE /commands/token" $

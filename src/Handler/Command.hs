@@ -15,14 +15,11 @@ import Network.AWS (catching)
 import Network.AWS.S3 (_NoSuchKey)
 
 data CommandRequest = CommandRequest
-    { reqRunning :: Bool
-    , reqDescription :: Maybe Text
-    }
+    { reqDescription :: Maybe Text }
 
 instance FromJSON CommandRequest where
     parseJSON = withObject "CommandRequest" $ \o -> CommandRequest
-        <$> o .:? "running" .!= True
-        <*> o .:? "description"
+        <$> o .:? "description"
 
 postCommandsR :: Handler TypedContent
 postCommandsR = do
@@ -32,7 +29,7 @@ postCommandsR = do
 
     void $ runDB $ insert Command
         { commandToken = token
-        , commandRunning = reqRunning req
+        , commandRunning = True -- deprecated field
         , commandDescription = reqDescription req
         , commandCreatedAt = now
         }
