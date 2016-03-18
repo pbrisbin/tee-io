@@ -29,8 +29,6 @@ data AppSettings = AppSettings
     -- ^ Directory from which to serve static files.
     , appDatabaseConf           :: PostgresConf
     -- ^ Configuration settings for accessing the database.
-    , appDatabasePoolSize       :: Int
-    -- ^ Database pool size
     , appRoot                   :: Text
     -- ^ Base for all generated URLs.
     , appHost                   :: HostPreference
@@ -65,8 +63,9 @@ instance FromJSON AppSettings where
                 False
 #endif
         appStaticDir              <- o .: "static-dir"
-        appDatabasePoolSize       <- o .: "database-pool-size"
-        appDatabaseConf           <- fromDatabaseUrl appDatabasePoolSize <$> o .: "database-url"
+        appDatabaseConf           <- fromDatabaseUrl
+            <$> o .: "database-pool-size"
+            <*> o .: "database-url"
         appRoot                   <- o .: "approot"
         appHost                   <- fromString <$> o .: "host"
         appPort                   <- o .: "port"
