@@ -20,7 +20,7 @@ postOutputR token = do
     now <- liftIO getCurrentTime
     req <- requireJsonBody
     void $ runDB $ do
-        Entity commandId command <- getBy404 $ UniqueCommand token
+        Entity commandId _ <- getBy404 $ UniqueCommand token
 
         insert Output
             { outputCommand = commandId
