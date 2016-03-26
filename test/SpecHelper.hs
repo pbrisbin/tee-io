@@ -21,7 +21,7 @@ import Test.Hspec            as X hiding
     , shouldReturn
     )
 import Test.Hspec.Expectations.Lifted as X
-import Yesod.Default.Config2 (ignoreEnv, loadAppSettings)
+import Yesod.Default.Config2 (useEnv, loadAppSettings)
 import Yesod.Persist         as X (getBy404)
 import Yesod.Test            as X
 
@@ -34,9 +34,9 @@ withApp = before $ do
     loadEnvFrom ".env.test"
 
     settings <- loadAppSettings
-        ["config/test-settings.yml", "config/settings.yml"]
+        ["config/settings.yml"]
         []
-        ignoreEnv
+        useEnv
 
     app <- makeFoundation settings
     wipeDB app
