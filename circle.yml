@@ -1,3 +1,7 @@
+machine:
+  services:
+    - docker
+
 dependencies:
   cache_directories:
     - "~/.stack"
@@ -13,4 +17,4 @@ test:
   pre:
     - bin/setup
   override:
-    - stack test
+    - make test

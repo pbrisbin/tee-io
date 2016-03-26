@@ -14,6 +14,7 @@ Flag library-only
 library
     hs-source-dirs: src, app
     exposed-modules: Data.Time.Duration
+                     Network.S3URL
                      Application
                      Foundation
                      Import
@@ -94,6 +95,7 @@ library
                  , heroku
                  , websockets
                  , amazonka >= 1.3.5
+                 , amazonka-core
                  , amazonka-s3
                  , lens
                  , http-types
@@ -102,6 +104,7 @@ library
                  , time-units
                  , scientific
                  , esqueleto
+                 , network-uri
 
 executable         tee-io
     if flag(library-only)
@@ -162,3 +165,7 @@ test-suite test
                  , persistent
                  , uuid
                  , load-env
+                 , amazonka
+                 , amazonka-s3
+                 , bytestring
+                 , lens

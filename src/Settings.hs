@@ -14,8 +14,10 @@ import Data.Time.Units             (Second)
 import Data.Yaml                   (decodeEither')
 import Database.Persist.Postgresql (PostgresConf(..))
 import Language.Haskell.TH.Syntax  (Exp, Name, Q)
-import Network.AWS.S3              (BucketName(..))
+import Network.AWS                 (Service)
+import Network.AWS.S3              (BucketName)
 import Network.Wai.Handler.Warp    (HostPreference)
+import Network.S3URL               (S3URL(..))
 import Yesod.Default.Config2       (applyEnvValue, configSettingsYml)
 import Yesod.Default.Util          (WidgetFileSettings, widgetFileNoReload,
                                     widgetFileReload)
@@ -40,6 +42,8 @@ data AppSettings = AppSettings
     -- behind a reverse proxy.
     , appCommandTimeout         :: Second
     -- ^ How long to consider a command no longer running in seconds
+    , appS3Service              :: Service
+    -- ^ S3 service to archive commands to (testing override)
     , appS3Bucket               :: BucketName
     -- ^ S3 bucket to archive commands to
     , appDebug                  :: Bool
@@ -70,7 +74,7 @@ instance FromJSON AppSettings where
         appPort                   <- o .: "port"
         appIpFromHeader           <- o .: "ip-from-header"
         appCommandTimeout         <- toSecond <$> o .: "command-timeout"
-        appS3Bucket               <- BucketName <$> o .: "s3-bucket"
+        S3URL appS3Service appS3Bucket <- o .: "s3-url"
         appDebug                  <- o .: "debug"
 
         appReloadTemplates        <- o .:? "reload-templates" .!= defaultDev

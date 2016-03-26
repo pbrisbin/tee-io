@@ -7,7 +7,7 @@ port:            "_env:PORT:3000"
 approot:         "_env:APPROOT:http://localhost:3000"
 ip-from-header:  "_env:IP_FROM_HEADER:false"
 command-timeout: "_env:COMMAND_TIMEOUT:300"
-s3-bucket:       "_env:S3_BUCKET:tee.io.development"
+s3-url:          "_env:S3_URL:https://s3.amazonaws.com/tee.io.development"
 debug:           "_env:DEBUG:false"
 
 database-url:       "_env:DATABASE_URL:postgres://teeio:teeio@localhost:5432/teeio"

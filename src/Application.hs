@@ -83,7 +83,7 @@ makeFoundation appSettings = do
     return $ mkFoundation pool
 
   where
-    newAWSEnv debug = do
+    newAWSEnv debug = AWS.configure (appS3Service appSettings) <$> do
         logger <- AWS.newLogger (if debug then AWS.Debug else AWS.Error) stdout
         set AWS.envLogger logger <$> AWS.newEnv AWS.NorthVirginia AWS.Discover
 

@@ -35,19 +35,19 @@ spec = withApp $ do
                 Entity _ command <- runDB $ getBy404 $ UniqueCommand token
                 commandDescription command `shouldBe` Just "test command"
 
-    -- describe "DELETE /commands/token" $
-    --     it "deletes the command's data" $ do
-    --         now <- liftIO getCurrentTime
-    --         token <- newToken
-    --         void $ runDB $ insert Command
-    --             { commandToken = token
-    --             , commandRunning = True
-    --             , commandDescription = Just "a description"
-    --             , commandCreatedAt = now
-    --             }
+    describe "DELETE /commands/token" $
+        it "deletes the command's data" $ do
+            now <- liftIO getCurrentTime
+            token <- newToken
+            void $ runDB $ insert Command
+                { commandToken = token
+                , commandRunning = True
+                , commandDescription = Just "a description"
+                , commandCreatedAt = now
+                }
 
-    --         delete $ CommandR token
-    --         statusIs 200
+            delete $ CommandR token
+            statusIs 200
 
-    --         results <- runDB $ selectList [CommandToken ==. token] []
-    --         results `shouldBe` []
+            results <- runDB $ selectList [CommandToken ==. token] []
+            results `shouldBe` []
