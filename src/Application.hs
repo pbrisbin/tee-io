@@ -53,11 +53,6 @@ mkYesodDispatch "App" resourcesApp
 -- migrations handled by Yesod.
 makeFoundation :: AppSettings -> IO App
 makeFoundation appSettings = do
-    when (appDebug appSettings) $ do
-        putStrLn "=== App Settings ==="
-        print appSettings
-        putStrLn "=== App Settings ==="
-
     -- Some basic initializations: HTTP connection manager, logger, and static
     -- subsite.
     appAWSEnv <- newAWSEnv $ appDebug appSettings
