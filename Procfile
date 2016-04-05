@@ -1,1 +1,1 @@
-web: ./bin/tee-io
+web: ./tee-io
