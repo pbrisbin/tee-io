@@ -66,6 +66,7 @@ library
                       , esqueleto
                       , fast-logger
                       , file-embed
+                      , foreign-store
                       , heroku-persistent
                       , hjsmin
                       , http-conduit

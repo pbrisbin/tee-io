@@ -1,12 +1,5 @@
 -- | Running your app inside GHCi.
 --
--- To start up GHCi for usage with Yesod, first make sure you are in dev mode:
---
--- > cabal configure -fdev
---
--- Note that @yesod devel@ automatically sets the dev flag.
--- Now launch the repl:
---
 -- > cabal repl --ghc-options="-O0 -fobject-code"
 --
 -- To start your app, run:
@@ -16,18 +9,6 @@
 --
 -- You can also call @DevelMain.shutdown@ to stop the app
 --
--- You will need to add the foreign-store package to your .cabal file.
--- It is very light-weight.
---
--- If you don't use cabal repl, you will need
--- to run the following in GHCi or to add it to
--- your .ghci file.
---
--- :set -DDEVELOPMENT
---
--- There is more information about this approach,
--- on the wiki: https://github.com/yesodweb/yesod/wiki/ghci
-
 module DevelMain where
 
 import Prelude
@@ -41,9 +22,6 @@ import Foreign.Store
 import Network.Wai.Handler.Warp
 import GHC.Word
 
--- | Start or restart the server.
--- newStore is from foreign-store.
--- A Store holds onto some data across ghci reloads
 update :: IO ()
 update = do
     mtidStore <- lookupStore tidStoreNum
@@ -60,7 +38,6 @@ update = do
     doneStore :: Store (MVar ())
     doneStore = Store 0
 
-    -- shut the server down with killThread and wait for the done signal
     restartAppInNewThread :: Store (IORef ThreadId) -> IO ()
     restartAppInNewThread tidStore = modifyStoredIORef tidStore $ \tid -> do
         killThread tid
@@ -68,9 +45,7 @@ update = do
         readStore doneStore >>= start
 
 
-    -- | Start the server in a separate thread.
-    start :: MVar () -- ^ Written to when the thread is killed.
-          -> IO ThreadId
+    start :: MVar () -> IO ThreadId
     start done = do
         (port, site, app) <- getApplicationRepl
         forkIO (finally (runSettings (setPort port defaultSettings) app)
@@ -79,12 +54,10 @@ update = do
                         -- Normally this should be fine
                         (putMVar done () >> shutdownApp site))
 
--- | kill the server
 shutdown :: IO ()
 shutdown = do
     mtidStore <- lookupStore tidStoreNum
     case mtidStore of
-      -- no server running
       Nothing -> putStrLn "no Yesod app running"
       Just tidStore -> do
           withStore tidStore $ readIORef >=> killThread
