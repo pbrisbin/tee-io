@@ -1,5 +1,6 @@
 *
 
+!stack-bootstrap
 !stack.yaml
 !tee-io.cabal
 
