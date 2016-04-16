@@ -10,12 +10,15 @@ import Data.Yaml (decodeEither')
 import Database.Persist.Postgresql (PostgresConf(..))
 import Language.Haskell.TH.Syntax (Exp, Q)
 import Network.AWS (Service)
-import Network.AWS.S3 (BucketName)
+import Network.AWS.S3 (BucketName(..))
 import Network.S3URL (S3URL(..))
 import Network.Wai.Handler.Warp (HostPreference)
 import Web.Heroku.Persist.Postgresql (fromDatabaseUrl)
 import Yesod.Default.Config2 (applyEnvValue, configSettingsYml)
 import Yesod.Default.Util (widgetFileNoReload, widgetFileReload)
+
+import qualified Data.Text as T
+import qualified Data.ByteString.Char8 as C8
 
 data AppSettings = AppSettings
     { appStaticDir :: String
@@ -31,6 +34,17 @@ data AppSettings = AppSettings
     , appReloadTemplates :: Bool
     , appMutableStatic :: Bool
     }
+
+instance Show AppSettings where
+    show AppSettings{..} = concat
+        [ "debug=", show appDebug
+        , " host=", show appHost
+        , " port=", show appPort
+        , " root=", show appRoot
+        , " db=[", C8.unpack $ pgConnStr appDatabaseConf, "]"
+        , " s3_bucket=", (\(BucketName t) -> T.unpack t) appS3Bucket
+        , " command_timeout=", show appCommandTimeout
+        ]
 
 instance FromJSON AppSettings where
     parseJSON = withObject "AppSettings" $ \o -> do

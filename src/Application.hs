@@ -52,6 +52,7 @@ import System.Log.FastLogger
     , toLogStr
     )
 
+import qualified Data.Text as T
 import qualified Network.AWS as AWS
 
 mkYesodDispatch "App" resourcesApp
@@ -76,6 +77,9 @@ makeFoundation appSettings = do
 
     -- Perform database migrations
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
+
+    -- Output settings at startup
+    runLoggingT ($(logInfo) $ "settings " <> T.pack (show appSettings)) logFunc
 
     return $ mkFoundation pool
 

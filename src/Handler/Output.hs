@@ -55,7 +55,7 @@ outputStream commandId start = catchingConnectionException $ do
 
 catchingConnectionException :: WebSocketsT Handler () -> WebSocketsT Handler ()
 catchingConnectionException f = f `catch` \e ->
-    $(logDebug) $ pack $ show (e :: ConnectionException)
+    $(logWarn) $ pack $ show (e :: ConnectionException)
 
 sendTextDataAck :: MonadIO m => Text -> WebSocketsT m ()
 sendTextDataAck msg = do
