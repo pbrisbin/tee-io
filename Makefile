@@ -1,4 +1,15 @@
-.PHONY: test
+.PHONY: setup test
+
+setup:
+	createdb teeio
+	createdb teeio_test
+	echo \
+	  "CREATE USER teeio WITH PASSWORD 'teeio';" \
+	  " GRANT ALL PRIVILEGES ON DATABASE teeio TO teeio; " \
+	  " GRANT ALL PRIVILEGES ON DATABASE teeio_test TO teeio;" |\
+	  psql template1
+	stack setup
+	stack build --dependencies-only --test
 
 test:
 	@docker stop tee-io-fake-s3 || true

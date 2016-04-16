@@ -10,11 +10,8 @@ dependencies:
     - tar xvzOf /tmp/stack.tar.gz stack-0.1.6.0-linux-x86_64/stack > /tmp/stack
     - chmod +x /tmp/stack && sudo mv /tmp/stack /usr/bin/stack
   override:
-    - stack setup
-    - stack build
+    - make setup
 
 test:
-  pre:
-    - bin/setup
   override:
     - make test
