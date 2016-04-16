@@ -55,9 +55,7 @@ instance Yesod App where
       where
         genFileName lbs = "autogen-" ++ base64md5 lbs
 
-    shouldLog app _source level
-        | appDebug $ appSettings app = True
-        | otherwise = level >= LevelInfo
+    shouldLog App{..} _source = (appSettings `allowsLevel`)
 
     makeLogger = return . appLogger
 

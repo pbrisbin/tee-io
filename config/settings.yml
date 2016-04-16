@@ -2,9 +2,9 @@ approot: "_env:APPROOT:http://localhost:3000"
 command-timeout: "_env:COMMAND_TIMEOUT:300"
 database-pool-size: "_env:PGPOOLSIZE:10" # use conventional variable
 database-url: "_env:DATABASE_URL:postgres://teeio:teeio@localhost:5432/teeio"
-debug: "_env:DEBUG:false"
 host: "_env:HOST:*4" # any IPv4 host
 ip-from-header: "_env:IP_FROM_HEADER:false"
+log-level: "_env:LOG_LEVEL:info"
 mutable-static: "_env:MUTABLE_STATIC:false"
 port: "_env:PORT:3000"
 reload-templates: "_env:RELOAD_TEMPLATES:false"

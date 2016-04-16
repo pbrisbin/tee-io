@@ -39,7 +39,7 @@ import Network.Wai.Handler.Warp
     , getPort
     )
 import Network.Wai.Middleware.RequestLogger
-    ( Destination(Logger)
+    ( Destination(Callback, Logger)
     , IPAddrSource(..)
     , OutputFormat(..)
     , destination
@@ -59,7 +59,7 @@ mkYesodDispatch "App" resourcesApp
 
 makeFoundation :: AppSettings -> IO App
 makeFoundation appSettings = do
-    appAWSEnv <- newAWSEnv $ appDebug appSettings
+    appAWSEnv <- newAWSEnv $ appSettings `allowsLevel` LevelDebug
     appHttpManager <- newManager
     appLogger <- newStdoutLoggerSet defaultBufSize >>= makeYesodLogger
     appStatic <-
@@ -96,10 +96,12 @@ makeApplication foundation = do
 
 makeLogWare :: App -> IO Middleware
 makeLogWare foundation = mkRequestLogger def
-    { outputFormat = if appDebug $ appSettings foundation
+    { outputFormat = if appSettings foundation `allowsLevel` LevelDebug
         then Detailed True
         else Apache apacheIpSource
-    , destination = Logger $ loggerSet $ appLogger foundation
+    , destination = if appSettings foundation `allowsLevel` LevelInfo
+        then Logger $ loggerSet $ appLogger foundation
+        else Callback $ \_ -> return ()
     }
   where
     apacheIpSource = if appIpFromHeader $ appSettings foundation

@@ -30,14 +30,14 @@ data AppSettings = AppSettings
     , appCommandTimeout :: Second
     , appS3Service :: Service
     , appS3Bucket :: BucketName
-    , appDebug :: Bool
+    , appLogLevel :: LogLevel
     , appReloadTemplates :: Bool
     , appMutableStatic :: Bool
     }
 
 instance Show AppSettings where
     show AppSettings{..} = concat
-        [ "debug=", show appDebug
+        [ "log_level=", show appLogLevel
         , " host=", show appHost
         , " port=", show appPort
         , " root=", show appRoot
@@ -59,11 +59,22 @@ instance FromJSON AppSettings where
         appCommandTimeout <- fromIntegral
             <$> (o .: "command-timeout" :: Parser Integer)
         S3URL appS3Service appS3Bucket <- o .: "s3-url"
-        appDebug <- o .: "debug"
+        appLogLevel <- parseLogLevel <$> o .: "log-level"
         appReloadTemplates <- o .: "reload-templates"
         appMutableStatic <- o .: "mutable-static"
 
         return AppSettings {..}
+      where
+        parseLogLevel :: Text -> LogLevel
+        parseLogLevel t = case T.toLower t of
+            "debug" -> LevelDebug
+            "info" -> LevelInfo
+            "warn" -> LevelWarn
+            "error" -> LevelError
+            _ -> LevelOther t
+
+allowsLevel :: AppSettings -> LogLevel -> Bool
+allowsLevel AppSettings{..} = (>= appLogLevel)
 
 widgetFile :: String -> Q Exp
 widgetFile = (if appReloadTemplates compileTimeAppSettings
