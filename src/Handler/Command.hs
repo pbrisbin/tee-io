@@ -29,7 +29,6 @@ postCommandsR = do
 
     void $ runDB $ insert Command
         { commandToken = token
-        , commandRunning = True -- deprecated field
         , commandDescription = reqDescription req
         , commandCreatedAt = now
         }

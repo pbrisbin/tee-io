@@ -41,7 +41,6 @@ spec = withApp $ do
             token <- newToken
             void $ runDB $ insert Command
                 { commandToken = token
-                , commandRunning = True
                 , commandDescription = Just "a description"
                 , commandCreatedAt = now
                 }

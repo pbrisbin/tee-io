@@ -44,8 +44,7 @@ archivableCommands timeout = do
     select $ from $ \(c `LeftOuterJoin` mo) -> do
         on ((just (c ^. CommandId) ==. mo ?. OutputCommand) &&.
             (mo ?. OutputCreatedAt >. just (val cutoff)))
-        where_ ((c ^. CommandRunning ==. val True) &&.
-                (c ^. CommandCreatedAt <. val cutoff) &&.
+        where_ ((c ^. CommandCreatedAt <. val cutoff) &&.
                 isNothing (mo ?. OutputId))
         return c
 

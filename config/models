@@ -1,6 +1,6 @@
 Command
   token Token
-  running Bool
+  running Bool SafeToRemove
   description Text Maybe
   createdAt UTCTime
   UniqueCommand token

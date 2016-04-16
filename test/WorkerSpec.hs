@@ -18,7 +18,6 @@ spec = withApp $
             token <- newToken
             void $ runDB $ insert Command
                 { commandToken = token
-                , commandRunning = True
                 , commandDescription = Nothing
                 , commandCreatedAt = now
                 }
@@ -32,7 +31,6 @@ spec = withApp $
             runDB $ do
                 commandId <- insert Command
                     { commandToken = token
-                    , commandRunning = True
                     , commandDescription = Nothing
                     , commandCreatedAt = (35 :: Second) `priorTo` now
                     }
@@ -53,14 +51,12 @@ spec = withApp $
             runDB $ do
                 void $ insert Command
                     { commandToken = token1
-                    , commandRunning = True
                     , commandDescription = Nothing
                     , commandCreatedAt = (45 :: Second) `priorTo` now
                     }
 
                 commandId <- insert Command
                     { commandToken = token2
-                    , commandRunning = True
                     , commandDescription = Nothing
                     , commandCreatedAt = (40 :: Second) `priorTo` now
                     }
