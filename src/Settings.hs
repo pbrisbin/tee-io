@@ -9,6 +9,7 @@ import ClassyPrelude.Yesod
 import Control.Exception           (throw)
 import Data.Aeson                  (Result (..), fromJSON, withObject, (.!=),
                                     (.:?))
+import Data.Aeson.Types            (Parser)
 import Data.FileEmbed              (embedFile)
 import Data.Time.Units             (Second)
 import Data.Yaml                   (decodeEither')
@@ -73,7 +74,8 @@ instance FromJSON AppSettings where
         appHost                   <- fromString <$> o .: "host"
         appPort                   <- o .: "port"
         appIpFromHeader           <- o .: "ip-from-header"
-        appCommandTimeout         <- toSecond <$> o .: "command-timeout"
+        appCommandTimeout         <- fromIntegral
+            <$> (o .: "command-timeout" :: Parser Integer)
         S3URL appS3Service appS3Bucket <- o .: "s3-url"
         appDebug                  <- o .: "debug"
 
@@ -81,9 +83,6 @@ instance FromJSON AppSettings where
         appMutableStatic          <- o .:? "mutable-static"   .!= defaultDev
         appSkipCombining          <- o .:? "skip-combining"   .!= defaultDev
         return AppSettings {..}
-
-        toSecond :: Integer -> Second
-        toSecond = fromIntegral
 
 -- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.
