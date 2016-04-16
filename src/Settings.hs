@@ -21,7 +21,7 @@ import Network.S3URL               (S3URL(..))
 import Yesod.Default.Config2       (applyEnvValue, configSettingsYml)
 import Yesod.Default.Util          (WidgetFileSettings, widgetFileNoReload,
                                     widgetFileReload)
-import Web.Heroku.Postgres         (parseDatabaseUrl)
+import Web.Heroku.Persist.Postgresql (fromDatabaseUrl)
 
 -- | Runtime settings to configure this application. These settings can be
 -- loaded from various sources: defaults, environment variables, config files,
@@ -81,19 +81,6 @@ instance FromJSON AppSettings where
         appMutableStatic          <- o .:? "mutable-static"   .!= defaultDev
         appSkipCombining          <- o .:? "skip-combining"   .!= defaultDev
         return AppSettings {..}
-
-      where
-        fromDatabaseUrl :: Int -> String -> PostgresConf
-        fromDatabaseUrl poolSize url = PostgresConf
-            { pgConnStr = formatParams $ parseDatabaseUrl url
-            , pgPoolSize = poolSize
-            }
-
-        formatParams :: [(Text, Text)] -> ByteString
-        formatParams = encodeUtf8 . unwords . map toKeyValue
-
-        toKeyValue :: (Text, Text) -> Text
-        toKeyValue (k, v) = k <> "=" <> v
 
         toSecond :: Integer -> Second
         toSecond = fromIntegral
