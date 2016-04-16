@@ -1,5 +1,5 @@
 import Prelude (IO)
-import Worker  (workerMain)
+import Worker (workerMain)
 
 main :: IO ()
 main = workerMain

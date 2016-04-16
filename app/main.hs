@@ -1,4 +1,4 @@
-import Prelude     (IO)
+import Prelude (IO)
 import Application (appMain)
 
 main :: IO ()

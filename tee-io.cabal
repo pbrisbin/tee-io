@@ -1,171 +1,167 @@
-name:              tee-io
-version:           0.0.0
-cabal-version:     >= 1.8
-build-type:        Simple
+name:                   tee-io
+version:                0.0.0
+cabal-version:          >= 1.8
+build-type:             Simple
 
-Flag dev
-    Description:   Turn on development settings, like auto-reload templates.
-    Default:       False
-
-Flag library-only
-    Description:   Build for use with "yesod devel"
-    Default:       False
+flag library-only
+    description:        Build for use with "yesod devel"
+    default:            False
 
 library
-    hs-source-dirs: src, app
-    exposed-modules: Data.Time.Duration
-                     Network.S3URL
-                     Application
-                     Foundation
-                     Import
-                     Import.NoFoundation
-                     Token
-                     Model
-                     Settings
-                     Settings.StaticFiles
-                     Handler.Common
-                     Handler.Home
-                     Handler.Command
-                     Handler.Output
-                     Archive
-                     CommandContent
-                     Worker
+    hs-source-dirs:     src, app
+    exposed-modules:    Data.Time.Duration
+                        Network.S3URL
+                        Application
+                        Foundation
+                        Import
+                        Import.NoFoundation
+                        Token
+                        Model
+                        Settings
+                        Settings.StaticFiles
+                        Handler.Common
+                        Handler.Home
+                        Handler.Command
+                        Handler.Output
+                        Archive
+                        CommandContent
+                        Worker
 
-    if flag(dev) || flag(library-only)
-        cpp-options:   -DDEVELOPMENT
-        ghc-options:   -Wall -Werror -fwarn-tabs -O0
+    if flag(library-only)
+        ghc-options:    -Wall -Werror -fwarn-tabs -O0
     else
-        ghc-options:   -Wall -Werror -fwarn-tabs -O2
+        ghc-options:    -Wall -Werror -fwarn-tabs -O2
 
-    extensions: TemplateHaskell
-                QuasiQuotes
-                OverloadedStrings
-                NoImplicitPrelude
-                CPP
-                MultiParamTypeClasses
-                TypeFamilies
-                GADTs
-                GeneralizedNewtypeDeriving
-                FlexibleContexts
-                FlexibleInstances
-                EmptyDataDecls
-                NoMonomorphismRestriction
-                DeriveDataTypeable
-                ViewPatterns
-                TupleSections
-                RecordWildCards
+    extensions:         DeriveDataTypeable
+                        EmptyDataDecls
+                        FlexibleContexts
+                        FlexibleInstances
+                        GADTs
+                        GeneralizedNewtypeDeriving
+                        MultiParamTypeClasses
+                        NoImplicitPrelude
+                        NoMonomorphismRestriction
+                        OverloadedStrings
+                        QuasiQuotes
+                        RecordWildCards
+                        TemplateHaskell
+                        TupleSections
+                        TypeFamilies
+                        ViewPatterns
 
-    build-depends: base                          >= 4          && < 5
-                 , yesod                         >= 1.4.1      && < 1.5
-                 , yesod-core                    >= 1.4.6      && < 1.5
-                 , yesod-static                  >= 1.4.0.3    && < 1.6
-                 , classy-prelude                >= 0.10.2
-                 , classy-prelude-conduit        >= 0.10.2
-                 , classy-prelude-yesod          >= 0.10.2
-                 , bytestring                    >= 0.9        && < 0.11
-                 , text                          >= 0.11       && < 2.0
-                 , template-haskell
-                 , shakespeare                   >= 2.0        && < 2.1
-                 , hjsmin                        >= 0.1        && < 0.2
-                 , monad-control                 >= 0.3        && < 1.1
-                 , wai-extra                     >= 3.0        && < 3.1
-                 , yaml                          >= 0.8        && < 0.9
-                 , http-conduit                  >= 2.1        && < 2.2
-                 , directory                     >= 1.1        && < 1.3
-                 , warp                          >= 3.0        && < 3.3
-                 , data-default
-                 , aeson                         >= 0.6        && < 0.11
-                 , conduit                       >= 1.0        && < 2.0
-                 , monad-logger                  >= 0.3        && < 0.4
-                 , fast-logger                   >= 2.2        && < 2.5
-                 , wai-logger                    >= 2.2        && < 2.3
-                 , file-embed
-                 , safe
-                 , unordered-containers
-                 , containers
-                 , vector
-                 , time
-                 , wai
-                 , uuid
-                 , random
-                 , transformers
-                 , yesod-websockets
-                 , persistent
-                 , persistent-postgresql
-                 , heroku-persistent
-                 , websockets
-                 , amazonka >= 1.3.5
-                 , amazonka-core
-                 , amazonka-s3
-                 , lens
-                 , http-types
-                 , conduit-extra
-                 , load-env
-                 , time-units
-                 , scientific
-                 , esqueleto
-                 , network-uri
+    build-depends:      base
+                      , aeson
+                      , amazonka
+                      , amazonka-core
+                      , amazonka-s3
+                      , bytestring
+                      , classy-prelude
+                      , classy-prelude-conduit
+                      , classy-prelude-yesod
+                      , conduit
+                      , conduit-extra
+                      , containers
+                      , data-default
+                      , directory
+                      , esqueleto
+                      , fast-logger
+                      , file-embed
+                      , heroku-persistent
+                      , hjsmin
+                      , http-conduit
+                      , http-types
+                      , lens
+                      , load-env
+                      , monad-control
+                      , monad-logger
+                      , network-uri
+                      , persistent
+                      , persistent-postgresql
+                      , random
+                      , safe
+                      , scientific
+                      , shakespeare
+                      , template-haskell
+                      , text
+                      , time
+                      , time-units
+                      , transformers
+                      , unordered-containers
+                      , uuid
+                      , vector
+                      , wai
+                      , wai-extra
+                      , wai-logger
+                      , warp
+                      , websockets
+                      , yaml
+                      , yesod
+                      , yesod-core
+                      , yesod-static
+                      , yesod-websockets
 
-executable         tee-io
+executable              tee-io
     if flag(library-only)
-        Buildable: False
+        buildable:      False
 
-    main-is:           main.hs
-    hs-source-dirs:    app
-    build-depends:     base, tee-io
+    main-is:            main.hs
+    hs-source-dirs:     app
+    build-depends:      base
+                      , tee-io
 
     ghc-options:       -Wall -Werror -threaded -O2 -rtsopts -with-rtsopts=-N
 
-executable         tee-io-worker
+executable              tee-io-worker
     if flag(library-only)
-        Buildable: False
+        buildable:      False
 
-    main-is:           main-worker.hs
-    hs-source-dirs:    app
-    build-depends:     base, tee-io
+    main-is:            main-worker.hs
+    hs-source-dirs:     app
+    build-depends:      base
+                      , tee-io
 
-    ghc-options:       -Wall -Werror -threaded -O2 -rtsopts -with-rtsopts=-N
+    ghc-options:        -Wall -Werror -threaded -O2 -rtsopts -with-rtsopts=-N
 
 test-suite test
-    type:              exitcode-stdio-1.0
-    main-is:           Spec.hs
-    hs-source-dirs:    test
-    ghc-options:       -Wall -Werror
+    type:               exitcode-stdio-1.0
+    main-is:            Spec.hs
+    hs-source-dirs:     test
+    ghc-options:        -Wall -Werror
 
-    extensions: TemplateHaskell
-                QuasiQuotes
-                OverloadedStrings
-                NoImplicitPrelude
-                CPP
-                MultiParamTypeClasses
-                TypeFamilies
-                GADTs
-                GeneralizedNewtypeDeriving
-                FlexibleContexts
-                FlexibleInstances
-                EmptyDataDecls
-                NoMonomorphismRestriction
-                DeriveDataTypeable
-                ViewPatterns
-                TupleSections
-                RecordWildCards
+    extensions:         DeriveDataTypeable
+                        EmptyDataDecls
+                        FlexibleContexts
+                        FlexibleInstances
+                        GADTs
+                        GeneralizedNewtypeDeriving
+                        MultiParamTypeClasses
+                        NoImplicitPrelude
+                        NoMonomorphismRestriction
+                        OverloadedStrings
+                        QuasiQuotes
+                        RecordWildCards
+                        TemplateHaskell
+                        TupleSections
+                        TypeFamilies
+                        ViewPatterns
 
-    build-depends: base
-                 , tee-io
-                 , hspec >= 2.0.0
-                 , hspec-expectations-lifted
-                 , aeson
-                 , classy-prelude
-                 , http-types
-                 , wai-extra
-                 , yesod
-                 , yesod-core
-                 , yesod-test
-                 , yesod-persistent
-                 , persistent
-                 , uuid
-                 , load-env
-                 , amazonka
-                 , amazonka-s3
-                 , bytestring
-                 , lens
+    build-depends:      base
+                      , tee-io
+                      , hspec
+                      , hspec-expectations-lifted
+                      , aeson
+                      , amazonka
+                      , amazonka-s3
+                      , bytestring
+                      , classy-prelude
+                      , http-types
+                      , lens
+                      , load-env
+                      , persistent
+                      , shakespeare
+                      , uuid
+                      , wai-extra
+                      , yesod
+                      , yesod-core
+                      , yesod-persistent
+                      , yesod-test

@@ -3,16 +3,31 @@ module SpecHelper
     , module X
     ) where
 
-import Application           (makeFoundation, makeLogWare)
-import ClassyPrelude         as X
-import Data.Aeson            as X
-import Database.Persist      as X hiding (get, delete)
-import Foundation            as X
-import Network.HTTP.Types    as X
-import Network.Wai.Test      as X (SResponse(..))
-import Token                 as X
-import Model                 as X
-import Test.Hspec            as X hiding
+import Application (makeFoundation, makeLogWare)
+
+import Database.Persist.Sql
+    ( SqlBackend
+    , SqlPersistM
+    , connEscapeName
+    , rawExecute
+    , rawSql
+    , runSqlPersistMPool
+    , unSingle
+    )
+import LoadEnv (loadEnvFrom)
+import Yesod.Core.Handler (RedirectUrl)
+import Yesod.Default.Config2 (loadAppSettings, useEnv)
+
+import Foundation as X
+import Token as X
+import Model as X
+
+import ClassyPrelude as X
+import Data.Aeson as X
+import Database.Persist as X hiding (get, delete)
+import Network.HTTP.Types as X
+import Network.Wai.Test as X (SResponse(..))
+import Test.Hspec as X hiding
     ( expectationFailure
     , shouldBe
     , shouldSatisfy
@@ -21,13 +36,9 @@ import Test.Hspec            as X hiding
     , shouldReturn
     )
 import Test.Hspec.Expectations.Lifted as X
-import Yesod.Default.Config2 (useEnv, loadAppSettings)
-import Yesod.Persist         as X (getBy404)
-import Yesod.Test            as X
-
-import Database.Persist.Sql  (SqlPersistM, SqlBackend, runSqlPersistMPool, rawExecute, rawSql, unSingle, connEscapeName)
-import Yesod.Core.Handler (RedirectUrl)
-import LoadEnv (loadEnvFrom)
+import Text.Shakespeare.Text as X (st)
+import Yesod.Persist as X (getBy404)
+import Yesod.Test as X
 
 withApp :: SpecWith (TestApp App) -> Spec
 withApp = before $ do
@@ -90,5 +101,10 @@ wipeDB app = runDBWithApp app $ do
 
 getTables :: MonadIO m => ReaderT SqlBackend m [Text]
 getTables = do
-    tables <- rawSql "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';" []
+    tables <- rawSql [st|
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public';
+    |] []
+
     return $ map unSingle tables

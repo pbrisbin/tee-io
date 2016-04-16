@@ -4,6 +4,7 @@ module Handler.Output
     ) where
 
 import Import
+
 import Network.WebSockets (ConnectionException)
 import Yesod.WebSockets
 

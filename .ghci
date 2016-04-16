@@ -1,6 +1,3 @@
-:set -i.:config:dist/build/autogen
-:set -DDEVELOPMENT
-:set -XCPP
 :set -XDeriveDataTypeable
 :set -XEmptyDataDecls
 :set -XFlexibleContexts
