@@ -1,4 +1,4 @@
-.PHONY: setup test
+.PHONY: setup test release
 
 setup:
 	createdb teeio
@@ -22,3 +22,6 @@ test:
 	stack test
 	@docker stop tee-io-fake-s3 || true
 	@docker rm tee-io-fake-s3 || true
+
+release:
+	heroku docker:release
