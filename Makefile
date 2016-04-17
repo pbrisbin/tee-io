@@ -1,4 +1,4 @@
-.PHONY: setup test release
+.PHONY: setup test release repl
 
 setup:
 	createdb teeio
@@ -25,3 +25,6 @@ test:
 
 release:
 	heroku docker:release
+
+repl:
+	stack repl --ghc-options="-DDEVELOPMENT -O0 -fobject-code"

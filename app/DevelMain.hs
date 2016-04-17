@@ -1,14 +1,3 @@
--- | Running your app inside GHCi.
---
--- > cabal repl --ghc-options="-O0 -fobject-code"
---
--- To start your app, run:
---
--- > :l DevelMain
--- > DevelMain.update
---
--- You can also call @DevelMain.shutdown@ to stop the app
---
 module DevelMain where
 
 import Prelude
