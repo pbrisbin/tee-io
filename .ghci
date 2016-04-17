@@ -1,3 +1,5 @@
+:set -DDEVELOPMENT
+:set -XCPP
 :set -XDeriveDataTypeable
 :set -XEmptyDataDecls
 :set -XFlexibleContexts

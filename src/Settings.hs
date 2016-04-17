@@ -15,7 +15,12 @@ import Network.S3URL (S3URL(..))
 import Network.Wai.Handler.Warp (HostPreference)
 import Web.Heroku.Persist.Postgresql (fromDatabaseUrl)
 import Yesod.Default.Config2 (applyEnvValue, configSettingsYml)
-import Yesod.Default.Util (widgetFileNoReload, widgetFileReload)
+import Yesod.Default.Util
+#if DEVELOPMENT
+    (widgetFileReload)
+#else
+    (widgetFileNoReload)
+#endif
 
 import qualified Data.Text as T
 import qualified Data.ByteString.Char8 as C8
@@ -31,7 +36,6 @@ data AppSettings = AppSettings
     , appS3Service :: Service
     , appS3Bucket :: BucketName
     , appLogLevel :: LogLevel
-    , appReloadTemplates :: Bool
     , appMutableStatic :: Bool
     }
 
@@ -48,7 +52,6 @@ instance Show AppSettings where
 
 instance FromJSON AppSettings where
     parseJSON = withObject "AppSettings" $ \o -> do
-        appStaticDir <- o .: "static-dir"
         appDatabaseConf <- fromDatabaseUrl
             <$> o .: "database-pool-size"
             <*> o .: "database-url"
@@ -60,10 +63,15 @@ instance FromJSON AppSettings where
             <$> (o .: "command-timeout" :: Parser Integer)
         S3URL appS3Service appS3Bucket <- o .: "s3-url"
         appLogLevel <- parseLogLevel <$> o .: "log-level"
-        appReloadTemplates <- o .: "reload-templates"
         appMutableStatic <- o .: "mutable-static"
 
-        return AppSettings {..}
+        -- This value is needed in a pure context, and so can't read from ENV.
+        -- It also doesn't differ between environments, so we might as well
+        -- harcode it.
+        let appStaticDir = "static"
+
+        return AppSettings{..}
+
       where
         parseLogLevel :: Text -> LogLevel
         parseLogLevel t = case T.toLower t of
@@ -77,10 +85,13 @@ allowsLevel :: AppSettings -> LogLevel -> Bool
 allowsLevel AppSettings{..} = (>= appLogLevel)
 
 widgetFile :: String -> Q Exp
-widgetFile = (if appReloadTemplates compileTimeAppSettings
-                then widgetFileReload
-                else widgetFileNoReload)
-              def
+widgetFile =
+#if DEVELOPMENT
+    widgetFileReload
+#else
+    widgetFileNoReload
+#endif
+    def
 
 configSettingsYmlBS :: ByteString
 configSettingsYmlBS = $(embedFile configSettingsYml)

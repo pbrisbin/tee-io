@@ -3,6 +3,10 @@ version:                0.0.0
 cabal-version:          >= 1.8
 build-type:             Simple
 
+flag dev
+    description:        Turn auto-reload templates.
+    default:            False
+
 flag library-only
     description:        Build for use with "yesod devel"
     default:            False
@@ -27,12 +31,14 @@ library
                         CommandContent
                         Worker
 
-    if flag(library-only)
+    if flag(dev) || flag(library-only)
+        cpp-options:    -DDEVELOPMENT
         ghc-options:    -Wall -Werror -fwarn-tabs -O0
     else
         ghc-options:    -Wall -Werror -fwarn-tabs -O2
 
-    extensions:         DeriveDataTypeable
+    extensions:         CPP
+                        DeriveDataTypeable
                         EmptyDataDecls
                         FlexibleContexts
                         FlexibleInstances
@@ -129,7 +135,8 @@ test-suite test
     hs-source-dirs:     test
     ghc-options:        -Wall -Werror
 
-    extensions:         DeriveDataTypeable
+    extensions:         CPP
+                        DeriveDataTypeable
                         EmptyDataDecls
                         FlexibleContexts
                         FlexibleInstances
