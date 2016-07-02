@@ -1,3 +1,0 @@
-# This is required for heroku docker:release
-web:
-  build: .

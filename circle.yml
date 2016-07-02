@@ -4,14 +4,27 @@ machine:
 
 dependencies:
   cache_directories:
-    - "~/.stack"
+    - "docker/stack"
+    - "docker/stack-work"
   pre:
-    - wget https://github.com/commercialhaskell/stack/releases/download/v0.1.6.0/stack-0.1.6.0-linux-x86_64.tar.gz -O /tmp/stack.tar.gz
-    - tar xvzOf /tmp/stack.tar.gz stack-0.1.6.0-linux-x86_64/stack > /tmp/stack
-    - chmod +x /tmp/stack && sudo mv /tmp/stack /usr/bin/stack
+    - sudo chown root:root docker/stack docker/stack-work
   override:
+    - make development
     - make setup
 
 test:
   override:
     - make test
+
+deployment:
+  heroku:
+    branch: master
+    commands:
+      - >
+        docker login
+        --email=$HEROKU_EMAIL
+        --username=$HEROKU_EMAIL
+        --password=$HEROKU_API_TOKEN
+        registry.heroku.com
+      - make production
+      - make release

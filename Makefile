@@ -1,6 +1,6 @@
-.PHONY: setup test release repl
+.PHONY: setup development test production release repl
 
-setup:
+setup: development
 	createdb teeio
 	createdb teeio_test
 	echo \
@@ -8,8 +8,13 @@ setup:
 	  " GRANT ALL PRIVILEGES ON DATABASE teeio TO teeio; " \
 	  " GRANT ALL PRIVILEGES ON DATABASE teeio_test TO teeio;" |\
 	  psql template1
-	stack setup
-	stack build --dependencies-only --test
+	bin/stack setup
+	bin/stack build --dependencies-only --test
+
+development:
+	docker build \
+	  --tag pbrisbin/tee-io-development \
+	  --file docker/Dockerfile.build .
 
 test:
 	@docker stop tee-io-fake-s3 || true
@@ -19,12 +24,19 @@ test:
 	  --name tee-io-fake-s3 \
 	  --publish 4569:4569 \
 	  lphoward/fake-s3
-	stack test
+	bin/stack test
 	@docker stop tee-io-fake-s3 || true
 	@docker rm tee-io-fake-s3 || true
 
+production:
+	bin/stack install
+	docker build \
+	  --tag pbrisbin/tee-io \
+	  --file docker/Dockerfile .
+
 release:
-	heroku docker:release
+	docker tag pbrisbin/tee-io registry.heroku.com/tee-io/web
+	docker push registry.heroku.com/tee-io/web
 
 repl:
-	stack repl --ghc-options="-DDEVELOPMENT -O0 -fobject-code"
+	bin/stack repl --ghc-options="-DDEVELOPMENT -O0 -fobject-code"

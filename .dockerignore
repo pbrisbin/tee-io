@@ -1,11 +1,7 @@
 *
 
-!stack-bootstrap
-!stack.yaml
-!tee-io.cabal
+!docker/bin/tee-io
+!docker/bin/tee-io-worker
 
-!app
 !config
-!src
 !static
-!templates

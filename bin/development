@@ -1,0 +1,18 @@
+#!/bin/sh
+docker_run() {
+  exec docker run \
+    --rm \
+    --net host \
+    --volume "$PWD":/src \
+    --volume "$PWD"/docker/bin:/root/.local/bin \
+    --volume "$PWD"/docker/stack:/root/.stack \
+    --volume "$PWD"/docker/stack-work:/src/.stack-work "$@"
+}
+
+if [ -t 0 ] && [ -t 1 ]; then
+  docker_run \
+    --interactive \
+    --tty pbrisbin/tee-io-development "$@"
+else
+  docker_run pbrisbin/tee-io-development "$@"
+fi
