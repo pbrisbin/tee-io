@@ -22,9 +22,9 @@ deployment:
     commands:
       - >
         docker login
-        --email=$HEROKU_EMAIL
-        --username=$HEROKU_EMAIL
-        --password=$HEROKU_API_TOKEN
+        --email="$HEROKU_EMAIL"
+        --username="$HEROKU_EMAIL"
+        --password="$HEROKU_API_KEY"
         registry.heroku.com
       - make production
       - make release
