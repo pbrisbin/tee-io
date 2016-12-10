@@ -14,6 +14,7 @@ flag library-only
 library
     hs-source-dirs:     src, app
     exposed-modules:    Data.Time.Duration
+                        Network.PGDatabaseURL
                         Network.S3URL
                         Application
                         Foundation
@@ -73,7 +74,6 @@ library
                       , fast-logger
                       , file-embed
                       , foreign-store
-                      , heroku-persistent
                       , hjsmin
                       , http-conduit
                       , http-types
@@ -106,6 +106,7 @@ library
                       , yesod-core
                       , yesod-static
                       , yesod-websockets
+                      , HTTP
 
 executable              tee-io
     if flag(library-only)

@@ -12,8 +12,8 @@ import Language.Haskell.TH.Syntax (Exp, Q)
 import Network.AWS (Service)
 import Network.AWS.S3 (BucketName(..))
 import Network.S3URL (S3URL(..))
+import Network.PGDatabaseURL (parsePGConnectionString)
 import Network.Wai.Handler.Warp (HostPreference)
-import Web.Heroku.Persist.Postgresql (fromDatabaseUrl)
 import Yesod.Default.Config2 (applyEnvValue, configSettingsYml)
 import Yesod.Default.Util
 #if DEVELOPMENT
@@ -52,9 +52,12 @@ instance Show AppSettings where
 
 instance FromJSON AppSettings where
     parseJSON = withObject "AppSettings" $ \o -> do
-        appDatabaseConf <- fromDatabaseUrl
-            <$> o .: "database-pool-size"
-            <*> o .: "database-url"
+        url <- o .: "database-url"
+        connStr <- either fail return $ parsePGConnectionString url
+
+        appDatabaseConf <- PostgresConf
+            <$> pure connStr
+            <*> o .: "database-pool-size"
         appRoot <- o .: "approot"
         appHost <- fromString <$> o .: "host"
         appPort <- o .: "port"
