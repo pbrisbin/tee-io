@@ -3,13 +3,7 @@ machine:
     - docker
 
 dependencies:
-  cache_directories:
-    - "docker/stack"
-    - "docker/stack-work"
-  pre:
-    - sudo chown root:root docker/stack docker/stack-work
   override:
-    - make development
     - make setup
 
 test:

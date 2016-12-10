@@ -1,10 +1,10 @@
 approot: "_env:APPROOT:http://localhost:3000"
 command-timeout: "_env:COMMAND_TIMEOUT:300"
 database-pool-size: "_env:PGPOOLSIZE:10" # use conventional variable
-database-url: "_env:DATABASE_URL:postgres://teeio:teeio@localhost:5432/teeio"
+database-url: "_env:DATABASE_URL:postgres://postgres@postgres:5432/teeio"
 host: "_env:HOST:*4" # any IPv4 host
 ip-from-header: "_env:IP_FROM_HEADER:false"
-log-level: "_env:LOG_LEVEL:info"
+log-level: "_env:LOG_LEVEL:debug"
 mutable-static: "_env:MUTABLE_STATIC:false"
 port: "_env:PORT:3000"
-s3-url: "_env:S3_URL:https://s3.amazonaws.com/tee.io.development"
+s3-url: "_env:S3_URL:http://fake-s3:4569/tee.io"

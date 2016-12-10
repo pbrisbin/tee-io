@@ -26,7 +26,6 @@ import Database.Persist.Postgresql
     , runSqlPool
     )
 import Language.Haskell.TH.Syntax (qLocation)
-import LoadEnv (loadEnv)
 import Network.Wai (Middleware)
 import Network.Wai.Handler.Warp
     ( Settings
@@ -123,9 +122,7 @@ warpSettings foundation =
       defaultSettings
 
 getAppSettings :: IO AppSettings
-getAppSettings = do
-    loadEnv
-    loadAppSettings [configSettingsYml] [] useEnv
+getAppSettings = loadAppSettings [configSettingsYml] [] useEnv
 
 develMain :: IO ()
 develMain = develMainHelper $ do

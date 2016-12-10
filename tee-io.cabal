@@ -78,7 +78,6 @@ library
                       , http-conduit
                       , http-types
                       , lens
-                      , load-env
                       , monad-control
                       , monad-logger
                       , network-uri
@@ -165,7 +164,6 @@ test-suite test
                       , classy-prelude
                       , http-types
                       , lens
-                      , load-env
                       , persistent
                       , shakespeare
                       , uuid

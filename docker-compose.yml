@@ -1,0 +1,42 @@
+version: "2"
+
+volumes:
+  docker-bin:
+  docker-stack:
+  docker-stack-work:
+  postgresql:
+  fake-s3:
+
+services:
+  tee-io:
+    image: pbrisbin/tee-io-development
+    command:
+      - stack
+      - exec
+      - tee-io
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+    environment:
+      AWS_ACCESS_KEY_ID: x
+      AWS_SECRET_ACCESS_KEY: x
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/src
+      - docker-bin:/root/.local/bin
+      - docker-stack:/root/.stack
+      - docker-stack-work:/src/.stack-work
+    depends_on:
+      - postgres
+      - fake-s3
+
+  postgres:
+    image: postgres
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+
+  fake-s3:
+    image: lphoward/fake-s3
+    volumes:
+      - fake-s3:/fakes3_root

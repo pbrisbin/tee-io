@@ -1,42 +1,42 @@
-.PHONY: setup development test production release repl
+.PHONY: setup-db setup-app repl devel worker test production release
 
-setup: development
-	createdb teeio
-	createdb teeio_test
-	echo \
-	  "CREATE USER teeio WITH PASSWORD 'teeio';" \
-	  " GRANT ALL PRIVILEGES ON DATABASE teeio TO teeio; " \
-	  " GRANT ALL PRIVILEGES ON DATABASE teeio_test TO teeio;" |\
-	  psql template1
-	bin/stack setup
-	bin/stack build --dependencies-only --test
+setup-db:
+	docker-compose up -d postgres && sleep 10
+	docker-compose exec --user postgres postgres sh -c \
+	  "createdb teeio && createdb teeio_test"
 
-development:
-	docker build \
-	  --tag pbrisbin/tee-io-development \
-	  --file docker/Dockerfile.build .
+setup-app:
+	docker-compose run --rm tee-io sh -c "\
+	  stack setup &&\
+	  stack build --dependencies-only --test &&\
+	  stack install yesod-bin"
+
+setup: setup-db setup-app
+
+repl:
+	docker-compose run --rm tee-io \
+	  stack repl --ghc-options="-DDEVELOPMENT -O0 -fobject-code"
+
+devel:
+	docker-compose run --rm tee-io yesod devel
+
+worker:
+	docker-compose run --rm tee-io sh -c \
+	  "stack build && stack exec tee-io-worker"
 
 test:
-	@docker stop tee-io-fake-s3 || true
-	@docker rm tee-io-fake-s3 || true
-	docker run \
-	  --detach \
-	  --name tee-io-fake-s3 \
-	  --publish 4569:4569 \
-	  lphoward/fake-s3
-	bin/stack test
-	@docker stop tee-io-fake-s3 || true
-	@docker rm tee-io-fake-s3 || true
+	docker-compose run --rm \
+	  -e DATABASE_URL=postgres://postgres@postgres:5432/teeio_test \
+	  -e LOG_LEVEL=error \
+	  -e S3_URL=http://fake-s3:4569/tee.io_test \
+	  tee-io stack test
 
 production:
-	bin/stack install
-	docker build \
-	  --tag pbrisbin/tee-io \
-	  --file docker/Dockerfile .
+	docker-compose run --rm tee-io sh -c "\
+	  stack install &&
+	  cp -v ~/.local/bin/tee-io* out/"
+	docker build --tag pbrisbin/tee-io .
 
 release:
 	docker tag pbrisbin/tee-io registry.heroku.com/tee-io/web
 	docker push registry.heroku.com/tee-io/web
-
-repl:
-	bin/stack repl --ghc-options="-DDEVELOPMENT -O0 -fobject-code"

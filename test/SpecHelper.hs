@@ -14,7 +14,6 @@ import Database.Persist.Sql
     , runSqlPersistMPool
     , unSingle
     )
-import LoadEnv (loadEnvFrom)
 import Yesod.Core.Handler (RedirectUrl)
 import Yesod.Default.Config2 (loadAppSettings, useEnv)
 
@@ -42,8 +41,6 @@ import Yesod.Test as X
 
 withApp :: SpecWith (TestApp App) -> Spec
 withApp = before $ do
-    loadEnvFrom ".env.test"
-
     settings <- loadAppSettings
         ["config/settings.yml"]
         []
