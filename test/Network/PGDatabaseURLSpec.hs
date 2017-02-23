@@ -14,33 +14,32 @@ main = hspec spec
 
 spec :: Spec
 spec = describe "PGDatabaseURLSpec" $ do
-    it "parses a full URI" $ do
+    it "parses a full URI" $
         "postgres://a:b@c:123/d" `shouldParseTo` "user=a password=b host=c port=123 dbname=d"
 
-    it "parses a URI without password" $ do
+    it "parses a URI without password" $
         "postgres://a@c:123/d" `shouldParseTo` "user=a host=c port=123 dbname=d"
 
-    it "parses a URI without credentials" $ do
+    it "parses a URI without credentials" $
         "postgres://c:123/d" `shouldParseTo` "host=c port=123 dbname=d"
 
-    it "parses a URI without port" $ do
+    it "parses a URI without port" $
         "postgres://c/d" `shouldParseTo` "host=c dbname=d"
 
-    it "parses a URI without anything" $ do
+    it "parses a URI without anything" $
         "postgres:///" `shouldParseTo` ""
 
-    it "rejects invalid URIs" $ do
+    it "rejects invalid URIs" $
         "|7^bvk3" `shouldRejectWith` "Invalid URI: |7^bvk3"
 
-    -- TODO: can't figure out a way to make *just* the Authority invalid
+    -- N.B. Can't figure out a way to make *just* the Authority invalid
     -- it "rejects invalid Authorities" $ do
 
-    it "rejects unexpected schemes" $ do
+    it "rejects unexpected schemes" $
         "https://example.com" `shouldRejectWith` "Invalid scheme: https://, expecting postgres://"
 
 shouldParseTo :: String -> String -> Expectation
-x `shouldParseTo` y = do
-    parsePGConnectionString x `shouldBe` Right y
+x `shouldParseTo` y = parsePGConnectionString x `shouldBe` Right y
 
 shouldRejectWith :: String -> String -> Expectation
 x `shouldRejectWith` y = do
