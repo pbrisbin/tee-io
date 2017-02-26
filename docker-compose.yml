@@ -20,6 +20,7 @@ services:
     environment:
       AWS_ACCESS_KEY_ID: x
       AWS_SECRET_ACCESS_KEY: x
+      AWS_REGION: us-east-1
     ports:
       - 3000:3000
     volumes:
