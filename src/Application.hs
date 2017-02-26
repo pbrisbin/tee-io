@@ -85,7 +85,7 @@ makeFoundation appSettings = do
   where
     newAWSEnv debug = AWS.configure (appS3Service appSettings) <$> do
         logger <- AWS.newLogger (if debug then AWS.Debug else AWS.Error) stdout
-        set AWS.envLogger logger <$> AWS.newEnv AWS.NorthVirginia AWS.Discover
+        set AWS.envLogger logger <$> AWS.newEnv AWS.Discover
 
 makeApplication :: App -> IO Application
 makeApplication foundation = do
@@ -122,7 +122,7 @@ warpSettings foundation =
       defaultSettings
 
 getAppSettings :: IO AppSettings
-getAppSettings = loadAppSettings [configSettingsYml] [] useEnv
+getAppSettings = loadYamlSettings [configSettingsYml] [] useEnv
 
 develMain :: IO ()
 develMain = develMainHelper $ do

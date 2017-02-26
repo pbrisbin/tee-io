@@ -59,8 +59,8 @@ spec = describe "S3URL" $ do
         let Left err1 = eitherDecode "\"ftp://invalid\"" :: Either String S3URL
         let Left err2 = eitherDecode "\"https://localhost\"" :: Either String S3URL
 
-        err1 `shouldBe` "Invalid S3 URL: cannot infer port"
-        err2 `shouldBe` "Invalid S3 URL: bucket not provided"
+        err1 `shouldEndWith` "Invalid S3 URL: cannot infer port"
+        err2 `shouldEndWith` "Invalid S3 URL: bucket not provided"
 
 serviceEndpoint :: S3URL -> Endpoint
 serviceEndpoint url = _svcEndpoint (s3Service url) NorthVirginia

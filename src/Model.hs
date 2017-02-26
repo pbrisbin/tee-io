@@ -9,10 +9,11 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"]
 
 exists
     :: ( MonadIO m
-       , PersistQuery (PersistEntityBackend v)
+       , PersistQueryRead b
+       , PersistRecordBackend v b
        , PersistEntity v
        )
-    => [Filter v] -> ReaderT (PersistEntityBackend v) m Bool
+    => [Filter v] -> ReaderT b m Bool
 exists = fmap (> 0) . count
 
 commandOutputs :: MonadIO m => CommandId -> Int -> ReaderT SqlBackend m [Output]

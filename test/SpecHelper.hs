@@ -15,13 +15,17 @@ import Database.Persist.Sql
     , unSingle
     )
 import Yesod.Core.Handler (RedirectUrl)
-import Yesod.Default.Config2 (loadAppSettings, useEnv)
+import Yesod.Default.Config2 (loadYamlSettings, useEnv)
 
 import Foundation as X
 import Token as X
 import Model as X
 
-import ClassyPrelude as X
+import ClassyPrelude as X hiding
+    ( Handler
+    , delete
+    , deleteBy
+    )
 import Data.Aeson as X
 import Database.Persist as X hiding (get, delete)
 import Network.HTTP.Types as X
@@ -29,10 +33,16 @@ import Network.Wai.Test as X (SResponse(..))
 import Test.Hspec as X hiding
     ( expectationFailure
     , shouldBe
-    , shouldSatisfy
     , shouldContain
+    , shouldEndWith
     , shouldMatchList
+    , shouldNotBe
+    , shouldNotContain
+    , shouldNotReturn
+    , shouldNotSatisfy
     , shouldReturn
+    , shouldSatisfy
+    , shouldStartWith
     )
 import Test.Hspec.Expectations.Lifted as X
 import Text.Shakespeare.Text as X (st)
@@ -41,7 +51,7 @@ import Yesod.Test as X
 
 withApp :: SpecWith (TestApp App) -> Spec
 withApp = before $ do
-    settings <- loadAppSettings
+    settings <- loadYamlSettings
         ["config/settings.yml"]
         []
         useEnv
