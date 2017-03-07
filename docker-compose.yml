@@ -1,0 +1,20 @@
+version: "2"
+
+volumes:
+  postgresql:
+  fake-s3:
+
+services:
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+
+  fake-s3:
+    image: lphoward/fake-s3
+    ports:
+      - 4569:4569
+    volumes:
+      - fake-s3:/fakes3_root
