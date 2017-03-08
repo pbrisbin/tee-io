@@ -29,17 +29,15 @@ findContent404 token = do
 contentHeader :: CommandContent -> Widget
 contentHeader (Live _ command) = [whamlet|
     <span .right>
-        <strong>created at:
         #{show $ commandCreatedAt command}
 
-    <strong>command:
     $maybe desc <- commandDescription command
         #{desc}
     $nothing
-        no description
+        No description
 |]
 contentHeader (Archived _) = [whamlet|
-    archived command output
+    Archived output
 |]
 
 
