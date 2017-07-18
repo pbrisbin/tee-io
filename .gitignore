@@ -1,11 +1,6 @@
-dist
-static/tmp/
-static/combined/
+.env
+.stack-work
 config/client_session_key.aes
-.stack-work/
-docker/*
-!docker/Dockerfile.build
-!docker/Dockerfile
+static/combined/
+static/tmp/
 yesod-devel/
-.env*
-!.env.test
