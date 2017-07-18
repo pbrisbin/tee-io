@@ -18,3 +18,10 @@ services:
       - 4569:4569
     volumes:
       - fake-s3:/fakes3_root
+
+  tee-io:
+    image: pbrisbin/tee-io
+    build: .
+    env_file: ./.env.docker
+    ports:
+      - 3000:3000

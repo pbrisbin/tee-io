@@ -18,7 +18,7 @@ test:
 	stack test
 
 image:
-	docker build --tag pbrisbin/tee-io .
+	docker-compose build tee-io
 
 release:
 	docker tag pbrisbin/tee-io registry.heroku.com/tee-io/web
