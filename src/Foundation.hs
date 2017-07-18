@@ -30,8 +30,7 @@ type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 instance Yesod App where
     approot = ApprootMaster $ appRoot . appSettings
 
-    makeSessionBackend _ = Just <$>
-        defaultClientSessionBackend 120 "config/client_session_key.aes"
+    makeSessionBackend _ = return Nothing
 
     defaultLayout widget = do
         mmsg <- getMessage
