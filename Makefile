@@ -19,27 +19,10 @@ setup-ci:
 test:
 	stack test
 
-build:
-	docker build \
-	  --tag pbrisbin/tee-io-build \
-	  --file docker/Dockerfile.build .
-
-binaries:
-	docker run --rm \
-	  --volume "$(PWD)":/src:ro \
-	  --volume "$(PWD)"/docker/bin:/root/.local/bin \
-	  --volume "$(PWD)"/docker/stack:/root/.stack \
-	  --volume "$(PWD)"/docker/stack-work:/src/.stack-work \
-	  pbrisbin/tee-io-build sh -c "stack setup && stack install"
-
-production:
-	docker build \
-	  --tag pbrisbin/tee-io \
-	  --file docker/Dockerfile .
-
-release:
-	docker tag pbrisbin/tee-io registry.heroku.com/tee-io/web
-	docker push registry.heroku.com/tee-io/web
+deploy:
+	heroku container:login
+	heroku container:push web --app tee-io
+	heroku container:release web --app tee-io
 
 repl:
 	stack repl --ghci-options="-DDEVELOPMENT -O0 -fobject-code"

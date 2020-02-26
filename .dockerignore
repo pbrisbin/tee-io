@@ -1,7 +1,2 @@
-*
-
-!docker/bin/tee-io
-!docker/bin/tee-io-worker
-
-!config
-!static
+.git
+.stack-work
