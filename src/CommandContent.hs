@@ -8,8 +8,8 @@ module CommandContent
 import Import
 import Archive
 
-import Network.AWS
-import Network.AWS.S3 (_NoSuchKey)
+-- import Network.AWS
+-- import Network.AWS.S3 (_NoSuchKey)
 
 import qualified Data.ByteString.Lazy as BL
 
@@ -23,8 +23,11 @@ findContent404 token = do
 
     case mcommand of
         Just (Entity _ command) -> return $ Live token command
-        _ -> lift $ Archived
-            <$> catching _NoSuchKey (archivedOutput token) (\_ -> notFound)
+        _ -> lift $ Archived <$> archivedOutput token
+
+        -- Need to deal with MonadCatch
+        -- _ -> lift $ Archived
+        --     <$> catching _NoSuchKey (archivedOutput token) (\_ -> notFound)
 
 contentHeader :: CommandContent -> Widget
 contentHeader (Live _ command) = [whamlet|

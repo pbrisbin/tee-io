@@ -19,7 +19,7 @@ instance FromJSON OutputRequest where
 postOutputR :: Token -> Handler ()
 postOutputR token = do
     now <- liftIO getCurrentTime
-    req <- requireJsonBody
+    req <- requireCheckJsonBody
     void $ runDB $ do
         Entity commandId _ <- getBy404 $ UniqueCommand token
 

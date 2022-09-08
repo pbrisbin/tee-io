@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Handler.Command
     ( postCommandsR
     , patchCommandR
@@ -11,8 +13,8 @@ import Import
 import Archive
 import CommandContent
 
-import Network.AWS (catching)
-import Network.AWS.S3 (_NoSuchKey)
+-- import Network.AWS (catching)
+-- import Network.AWS.S3 (_NoSuchKey)
 
 data CommandRequest = CommandRequest
     { reqDescription :: Maybe Text }
@@ -24,7 +26,7 @@ instance FromJSON CommandRequest where
 postCommandsR :: Handler TypedContent
 postCommandsR = do
     now <- liftIO getCurrentTime
-    req <- requireJsonBody
+    req <- requireCheckJsonBody
     token <- newToken
 
     void $ runDB $ insert Command
@@ -49,7 +51,9 @@ getCommandR token = do
 deleteCommandR :: Token -> Handler ()
 deleteCommandR token = do
     runDB $ mapM_ (deleteCommand . entityKey) =<< getBy (UniqueCommand token)
-    catching _NoSuchKey (deleteArchivedOutput token) $ \_ -> return ()
+    -- Need to deal with MonadCatch
+    -- catching _NoSuchKey (deleteArchivedOutput token) $ \_ -> return ()
+    deleteArchivedOutput token `catch` \(_ :: SomeException) -> return ()
 
 -- Deprecated. Originally we required callers to update commands to
 -- running:false so we could take steps to archive content to S3. We'll instead

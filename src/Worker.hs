@@ -14,6 +14,7 @@ import Import hiding
     , delete
     , isNothing
     , on
+    , timeout
     , update
     )
 
