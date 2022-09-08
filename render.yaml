@@ -23,8 +23,8 @@ services:
     startCommand: /app/tee-io-worker
 
 databases:
-  name: tee-io
-  ipAllowList: []
+  - name: tee-io
+    ipAllowList: []
 
 envVarGroups:
   - name: vars
