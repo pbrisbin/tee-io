@@ -1,17 +1,18 @@
-FROM fpco/stack-build:lts-8.2 AS builder
+# Build stage
+FROM fpco/stack-build-small:lts-13.17 as builder
+MAINTAINER Pat Brisbin <pbrisbin@gmail.com>
+
 ENV LANG en_US.UTF-8
-RUN mkdir /src
+ENV PATH /root/.local/bin:$PATH
+
+RUN mkdir -p /src
 WORKDIR /src
 
-# Old LTS + new Stack fails on Happy hack. Attempted workaround:
-#RUN stack install alex happy
-ENV PATH=/root/.local/bin:$PATH
-
-COPY stack.yaml /src/stack.yaml
-COPY tee-io.cabal /src/tee-io.cabal
-
+COPY stack.yaml /src/
 RUN stack setup
-RUN stack build --dependencies-only
+
+COPY tee-io.cabal /src/tee-io.cabal
+RUN stack install --dependencies-only
 
 COPY src /src/src
 COPY app /src/app
@@ -20,6 +21,7 @@ COPY static /src/static
 COPY templates /src/templates
 RUN stack install
 
+# Runtime
 FROM ubuntu:18.04
 MAINTAINER Pat Brisbin <pbrisbin@gmail.com>
 ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8
@@ -36,7 +38,6 @@ RUN \
 
 RUN mkdir -p /app
 WORKDIR /app
-
 COPY config /app/config
 COPY static /app/static
 COPY --from=builder /root/.local/bin/tee-io /app/tee-io

@@ -1,7 +1,5 @@
-resolver: lts-8.2
-packages:
-- '.'
+resolver: lts-13.17
 extra-deps:
-- hspec-expectations-lifted-0.8.2
-- load-env-0.1.1
-- time-units-1.0.0
+  - hspec-expectations-lifted-0.8.2
+  - load-env-0.1.1
+  - time-units-1.0.0
