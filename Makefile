@@ -19,10 +19,5 @@ setup-ci:
 test:
 	stack test
 
-deploy:
-	heroku container:login
-	heroku container:push web --app tee-io
-	heroku container:release web --app tee-io
-
 repl:
 	stack repl --ghci-options="-DDEVELOPMENT -O0 -fobject-code"

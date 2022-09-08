@@ -2,7 +2,7 @@
 
 It's like `tee(1)` as a service.
 
-For details, see the [home page](https://tee-io.herokuapp.com/)
+For details, see the [home page](https://tee-io.onrender.com/)
 
 ## Development & Test
 

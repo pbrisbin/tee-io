@@ -28,7 +28,7 @@ curl_json() {
     --request "$method" --data @- "$host$path"
 }
 
-host="https://tee-io.herokuapp.com"
+host="https://tee-io.onrender.com"
 quiet=0
 description=""
 

@@ -8,7 +8,7 @@ require "tee_io/process"
 require "tee_io/token_response"
 
 module TeeIO
-  DEFAULT_URL = "https://tee-io.herokuapp.com"
+  DEFAULT_URL = "https://tee-io.onrender.com"
   DEFAULT_TIMEOUT = 5 * 60
 
   def self.run(*command, description: nil, base_url: DEFAULT_URL, timeout: DEFAULT_TIMEOUT)

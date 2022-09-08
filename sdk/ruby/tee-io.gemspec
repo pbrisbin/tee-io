@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.license     = "MIT"
   s.authors     = "Pat Brisbin"
   s.email       = "pbrisbin@gmail.com"
-  s.homepage    = "https://tee-io.herokuapp.com"
+  s.homepage    = "https://tee-io.onrender.com"
   s.description = "Client SDK for interfacing with tee.io"
 
   s.files         = Dir["lib/**/*.rb"]

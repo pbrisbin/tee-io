@@ -2,7 +2,7 @@
 
 Ruby client SDK for [tee.io][].
 
-[tee.io]: https://tee-io.herokuapp.com
+[tee.io]: https://tee-io.onrender.com
 
 ## Installation
 
