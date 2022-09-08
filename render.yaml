@@ -8,7 +8,6 @@ services:
         fromDatabase:
           name: tee-io
           property: connectionString
-    startCommand: /app/tee-io
 
   - type: cron
     name: tee-io-worker
@@ -21,7 +20,7 @@ services:
           property: connectionString
 
     schedule: "*/10 * * * *"
-    startCommand: /app/tee-io-worker
+    dockerCommand: /app/tee-io-worker
 
 databases:
   - name: tee-io
