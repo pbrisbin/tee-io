@@ -1,5 +1,6 @@
 services:
   - type: web
+    plan: free
     name: tee-io
     env: docker
     envVars:
@@ -24,6 +25,7 @@ services:
 
 databases:
   - name: tee-io
+    plan: free
     ipAllowList: []
 
 envVarGroups:
