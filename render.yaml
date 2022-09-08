@@ -8,6 +8,7 @@ services:
         fromDatabase:
           name: tee-io
           property: connectionString
+    startCommand: /app/tee-io
 
   - type: cron
     name: tee-io-worker
