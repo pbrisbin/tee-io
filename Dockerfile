@@ -1,10 +1,10 @@
-FROM fpco/stack-build:lts AS builder
+FROM fpco/stack-build:lts-8.2 AS builder
 ENV LANG en_US.UTF-8
 RUN mkdir /src
 WORKDIR /src
 
 # Old LTS + new Stack fails on Happy hack. Attempted workaround:
-RUN stack install alex happy
+#RUN stack install alex happy
 ENV PATH=/root/.local/bin:$PATH
 
 COPY stack.yaml /src/stack.yaml
@@ -20,8 +20,20 @@ COPY static /src/static
 COPY templates /src/templates
 RUN stack install
 
-FROM fpco/stack-run:lts
-ENV LANG en_US.UTF-8
+FROM ubuntu:18.04
+MAINTAINER Pat Brisbin <pbrisbin@gmail.com>
+ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8
+RUN \
+  apt-get update && \
+  apt-get install -y --no-install-recommends \
+    ca-certificates \
+    gcc \
+    git \
+    locales \
+    netbase && \
+  locale-gen en_US.UTF-8 && \
+  rm -rf /var/lib/apt/lists/*
+
 RUN mkdir -p /app
 WORKDIR /app
 
