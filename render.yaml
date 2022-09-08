@@ -1,25 +1,37 @@
 services:
   - type: web
-    name: teeio
+    name: tee-io
     env: docker
     envVars:
+      - fromGroup: vars
       - key: DATABASE_URL
         fromDatabase:
-          name: teeio
+          name: tee-io
           property: connectionString
 
   - type: cron
-    name: teeio-worker
+    name: tee-io-worker
     env: docker
     envVars:
+      - fromGroup: vars
       - key: DATABASE_URL
         fromDatabase:
-          name: teeio
+          name: tee-io
           property: connectionString
 
     schedule: "*/10 * * * *"
     startCommand: /app/tee-io-worker
 
 databases:
-  name: teeio
+  name: tee-io
   ipAllowList: []
+
+envVarGroups:
+  - name: vars
+    envVars:
+      - key: APPROOT
+        value: https://tee-io.onrender.com
+      - key: S3_BUCKET
+        value: tee.io
+      - key: S3_URL
+        value: https://s3.amazonaws.com/tee.io

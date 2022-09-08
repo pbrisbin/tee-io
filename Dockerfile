@@ -1,8 +1,15 @@
 # Build stage
 FROM fpco/stack-build-small:lts-13.17 as builder
 MAINTAINER Pat Brisbin <pbrisbin@gmail.com>
+ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8
+RUN \
+  apt-get update && \
+  apt-get install -y --no-install-recommends \
+    libpq-dev \
+    locales && \
+  locale-gen en_US.UTF-8 && \
+  rm -rf /var/lib/apt/lists/*
 
-ENV LANG en_US.UTF-8
 ENV PATH /root/.local/bin:$PATH
 
 RUN mkdir -p /src
@@ -30,7 +37,7 @@ RUN \
   apt-get install -y --no-install-recommends \
     ca-certificates \
     gcc \
-    git \
+    libpq-dev \
     locales \
     netbase && \
   locale-gen en_US.UTF-8 && \
