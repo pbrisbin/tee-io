@@ -9,18 +9,18 @@ services:
           name: tee-io
           property: connectionString
 
-  - type: cron
-    name: tee-io-worker
-    env: docker
-    envVars:
-      - fromGroup: vars
-      - key: DATABASE_URL
-        fromDatabase:
-          name: tee-io
-          property: connectionString
+  # - type: cron
+  #   name: tee-io-worker
+  #   env: docker
+  #   envVars:
+  #     - fromGroup: vars
+  #     - key: DATABASE_URL
+  #       fromDatabase:
+  #         name: tee-io
+  #         property: connectionString
 
-    schedule: "*/10 * * * *"
-    dockerCommand: /app/tee-io-worker
+  #   schedule: "*/10 * * * *"
+  #   dockerCommand: /app/tee-io-worker
 
 databases:
   - name: tee-io
